@@ -1,0 +1,187 @@
+<div class="ml-2 mr-2  border border-black ">
+    <form
+
+            hx-post="/llm"
+            hx-target="this"
+            hx-swap="none"
+            hx-ext="json-enc"
+            onsubmit="handleLLMResponse(event)"
+            class="space-y-4"
+    >
+    >
+        <div class="relative">
+                    <textarea
+                            name="text"
+                            placeholder="Speak to llm..."
+                            rows="1"
+                            class="w-full border border-gray-300 p-3 pr-20 rounded-2xl resize-none focus:outline-none focus:ring-1 focus:ring-[#7C3AED] min-h-[50px] max-h-[200px] overflow-y-auto"
+                            oninput="autoResize(this)"
+                            onkeydown="handleKeyDown(event)"
+                    ></textarea>
+
+            <button
+                    type="submit"
+                    class="absolute right-2 top-3 bg-[#7C3AED] text-white px-4 py-2 rounded-full hover:bg-[#6D28D9] transition-colors duration-200"
+            >
+                Send
+            </button>
+        </div>
+    </form>
+
+</div>
+<script>
+    function autoResize(textarea) {
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = 'auto';
+
+        // Set height to scrollHeight (content height)
+        textarea.style.height = textarea.scrollHeight + 'px';
+
+        // Optional: Adjust button position for multi-line
+        const button = textarea.parentElement.querySelector('button');
+        if (textarea.scrollHeight > 50) {
+            button.style.top = '12px'; // Move button to top when expanded
+        } else {
+            button.style.top = '12px'; // Keep centered for single line
+        }
+    }
+
+    function handleKeyDown(event) {
+        // Submit on Enter (but allow Shift+Enter for new lines)
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            event.target.form.submit();
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.querySelector('textarea[name="text"]');
+        autoResize(textarea);
+    });
+</script>
+<script>
+    document.body.addEventListener("htmx:afterOnLoad", function(event) {
+        try {
+            const responseText = event.detail.xhr.responseText;
+            const data = JSON.parse(responseText);
+
+            if (data.type === "tool") {
+                // Prevent default swap behavior
+                event.detail.shouldSwap = false;
+                console.log("recieved tool request: " + JSON.stringify(data.tool));
+                handleToolCall(data);
+            } else if (data.type === "message") {
+                // Insert message manually into echo-result div
+                hideLoadingState()
+                const resultDiv = document.querySelector("#echo-result");
+                const messageEl = document.createElement("div");
+                messageEl.className = "p-2 bg-[#D5EAFE] rounded-md mt-2";
+                messageEl.textContent = data.text;
+                resultDiv.appendChild(messageEl);
+            }
+        } catch (e) {
+            console.error("Error handling LLM response", e);
+        }
+    });
+
+    function handleToolCall(json) {
+        execute_quill_cmd(json);
+        if (json.tool === "set") {
+            console.log("tool call is set");
+            // You can send an HTMX request, fetch call, or whatever you need
+            hideLoadingState()
+            const resultDiv = document.querySelector("#echo-result");
+            const messageEl = document.createElement("div");
+            messageEl.className = "p-2 bg-[#EEEAFE] rounded-md mt-2";
+            messageEl.textContent = `Recieved Toolcall: ${JSON.stringify(json.text)}`;
+
+            console.log("Posted content: " + JSON.stringify(json.text));
+            resultDiv.appendChild(messageEl);
+
+        } else {
+            console.warn("Unknown tool call:", json.tool);
+            hideLoadingState()
+
+        }
+    }
+    function execute_quill_cmd(command) {
+        try {
+            if (typeof window.quill === 'undefined') {
+                console.error('Quill instance not found. Make sure doc.html has loaded.');
+                return;
+            }
+            console.log("executing quill command: ", JSON.stringify(command));
+            if (command.tool === "set") {
+                window.quill.setText(command.text, command.source);
+            } else if (command.tool === "getall") {
+                const delta = window.quill.getContents(0);
+                console.log("Got delta: ", delta);
+            } else if (command.tool === "get") {
+                const delta = window.quill.getContents(command.index, command.length);
+                console.log("Got delta: ", delta);
+            } else if (command.tool === "insert") {
+                window.quill.insertText(command.index, command.text, command.style, command.value, command.source);
+            } else if (command.tool === "update") {
+                window.quill.updateContents(command.delta, command.source);
+            } else if (command.tool === "delete") {
+                window.quill.deleteText(command.index, command.length, command.source);
+            } else if (command.tool === "deleteall") {
+                window.quill.deleteText(0, window.quill.getLength(), command.source);
+            } else if (command.tool === "format") {
+                window.quill.formatText(command.index, command.length, command.formats, command.source);
+            } else if (command.tool === "bounds") {
+                const bounds = window.quill.getBounds(command.index, command.length);
+                console.log("Got bounds: ", bounds);
+            }
+
+        }
+        catch (e) {
+            console.error("Error executing command: ", e);
+        }
+    }
+    function handleLLMResponse(event) {
+        showLoadingState()
+    }
+
+    function showLoadingState() {
+        // Gray out and disable the submit button
+        const submitButton = document.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        submitButton.textContent = 'Sending...';
+
+        // Add placeholder bot message
+        addPlaceholderMessage();
+    }
+    function hideLoadingState() {
+        // Re-enable the submit button
+        const submitButton = document.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        submitButton.textContent = 'Send';
+
+        // Remove placeholder message
+        removePlaceholderMessage();
+    }
+    function addPlaceholderMessage() {
+        const resultDiv = document.querySelector("#echo-result");
+        const placeholderEl = document.createElement("div");
+        placeholderEl.id = "bot-placeholder";
+        placeholderEl.className = "p-2 bg-gray-50 border border-gray-200 rounded-md mt-2 animate-pulse";
+        placeholderEl.innerHTML = `
+            <div class="p-4 animate-pulse">
+                <div class="h-6 bg-gray-200 rounded mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            </div>
+        `;
+        resultDiv.appendChild(placeholderEl);
+    }
+    function removePlaceholderMessage() {
+        const placeholder = document.querySelector("#bot-placeholder");
+        if (placeholder) {
+            placeholder.remove();
+        }
+    }
+</script>

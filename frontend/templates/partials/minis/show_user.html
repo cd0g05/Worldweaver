@@ -1,0 +1,7 @@
+{% if current_user.is_authenticated %}
+    <span class="flex items-center px-3 py-2 rounded space-y-2 text-m font-bold"> {{ current_user.name }} </span>
+{#    <span class="flex items-center gap-2 px-3 rounded space-y-1 text-xs font-italic"> {{ current_user.email }} </span>#}
+
+{%  else %}
+    <span class="flex items-center gap-2 px-3  rounded text-red-800">AUTHENTICATION ERROR - PLEASE REPORT</span>
+{% endif %}

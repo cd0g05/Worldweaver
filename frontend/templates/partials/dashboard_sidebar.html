@@ -1,0 +1,14 @@
+<aside class="w-56 bg-[#F3F4F6] flex flex-col p-4 space-y-4">
+    {% include 'partials/minis/icon.html' %}
+    {% include 'partials/minis/show_user.html' %}
+
+    <nav class="space-y-2 text-sm font-medium">
+
+        <a href="/dashboard" class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-100 text-indigo-600">Dashboard</a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-100">Projects</a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-100">Settings</a>
+        <a href="/planner" class="flex items-center gap-2 px-3 py-2 rounded hover:bg-red-100">Temp - Planner</a>
+
+        {% include 'partials/minis/hamburger_menu.html' %}
+    </nav>
+</aside>

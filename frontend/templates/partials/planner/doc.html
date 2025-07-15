@@ -1,0 +1,21 @@
+<!-- Include stylesheet -->
+
+<!-- Create the editor container -->
+<div id="editor">
+    <p>Begin chatting with the AI Assistant, and your plan will materialize here</p>
+
+    <p><br /></p>
+</div>
+
+<!-- Include the Quill library -->
+
+<!-- Initialize Quill editor -->
+<script>
+    window.quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+
+    window.getQuill = function () {
+        return window.quill;
+    }
+</script>
