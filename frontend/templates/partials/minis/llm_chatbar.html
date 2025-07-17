@@ -95,6 +95,7 @@
             const resultDiv = document.querySelector("#echo-result");
             const messageEl = document.createElement("div");
             messageEl.className = "p-2 bg-[#D5EAFE] rounded-md mt-2";
+            console.log("Description llm: " + JSON.stringify(json.description));
             messageEl.textContent = json.description;
             resultDiv.appendChild(messageEl);
         }
@@ -141,7 +142,6 @@
     }
     function handleLLMResponse(event) {
         const doc_contents = get_document_contents();
-        console.log("Document: ", JSON.stringify(doc_contents, null, 2));
         document.getElementById("doc-info").value = JSON.stringify(doc_contents, null, 2);
         document.getElementById("chat-context").value = " "
         showLoadingState()

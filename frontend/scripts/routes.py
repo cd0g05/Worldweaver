@@ -6,7 +6,7 @@ from frontend.scripts.dbmodels import SessionLocal, User
 from backend.llm import Call_Ai
 from backend.prompts import Prompts
 import re
-
+import json
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # this will be `.../frontend/scripts`
 
@@ -84,7 +84,7 @@ def llm():
             print(f"received document: {doc}\nType: {type(doc)}")
             prompt = get_prompts.get_toolcall_prompt(doc, context, user_text)
             output = ai.get_response(prompt, user_text)
-            json = {"type":"message", "text":output}
+            json = output
 
         return json
     else:
