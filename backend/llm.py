@@ -9,7 +9,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI()
 
 
-class call_ai:
+class Call_Ai:
     def __init__(self):
         """Initialize the call_ai class"""
         pass
@@ -128,7 +128,7 @@ class call_ai:
 
 # Example usage
 if __name__ == "__main__":
-    ai = call_ai()
+    ai = Call_Ai()
     text = "What are your opinions on the mining of rare resources?"
     response = ai.get_response("Respond like Director Krennic from star wars", text)
     print(response)

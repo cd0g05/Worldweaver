@@ -8,16 +8,19 @@
             onsubmit="handleLLMResponse(event)"
             class="space-y-4"
     >
-    >
+
         <div class="relative">
-                    <textarea
-                            name="text"
-                            placeholder="Speak to llm..."
-                            rows="1"
-                            class="w-full border border-gray-300 p-3 pr-20 rounded-2xl resize-none focus:outline-none focus:ring-1 focus:ring-[#7C3AED] min-h-[50px] max-h-[200px] overflow-y-auto"
-                            oninput="autoResize(this)"
-                            onkeydown="handleKeyDown(event)"
-                    ></textarea>
+            <input type="hidden" name="document" id="doc-info">
+            <input type="hidden" name="context" id="chat-context">
+
+            <textarea
+                name="text"
+                placeholder="Speak to llm..."
+                rows="1"
+                class="w-full border border-gray-300 p-3 pr-20 rounded-2xl resize-none focus:outline-none focus:ring-1 focus:ring-[#7C3AED] min-h-[50px] max-h-[200px] overflow-y-auto"
+                oninput="autoResize(this)"
+                onkeydown="handleKeyDown(event)"
+            ></textarea>
 
             <button
                     type="submit"
@@ -86,24 +89,17 @@
     });
 
     function handleToolCall(json) {
+
         execute_quill_cmd(json);
-        if (json.tool === "set") {
-            console.log("tool call is set");
-            // You can send an HTMX request, fetch call, or whatever you need
-            hideLoadingState()
+        if (json.description) {
             const resultDiv = document.querySelector("#echo-result");
             const messageEl = document.createElement("div");
-            messageEl.className = "p-2 bg-[#EEEAFE] rounded-md mt-2";
-            messageEl.textContent = `Recieved Toolcall: ${JSON.stringify(json.text)}`;
-
-            console.log("Posted content: " + JSON.stringify(json.text));
+            messageEl.className = "p-2 bg-[#D5EAFE] rounded-md mt-2";
+            messageEl.textContent = json.description;
             resultDiv.appendChild(messageEl);
-
-        } else {
-            console.warn("Unknown tool call:", json.tool);
-            hideLoadingState()
-
         }
+        hideLoadingState()
+
     }
     function execute_quill_cmd(command) {
         try {
@@ -117,9 +113,11 @@
             } else if (command.tool === "getall") {
                 const delta = window.quill.getContents(0);
                 console.log("Got delta: ", delta);
+                return delta;
             } else if (command.tool === "get") {
                 const delta = window.quill.getContents(command.index, command.length);
                 console.log("Got delta: ", delta);
+                return delta;
             } else if (command.tool === "insert") {
                 window.quill.insertText(command.index, command.text, command.style, command.value, command.source);
             } else if (command.tool === "update") {
@@ -133,6 +131,7 @@
             } else if (command.tool === "bounds") {
                 const bounds = window.quill.getBounds(command.index, command.length);
                 console.log("Got bounds: ", bounds);
+                return bounds;
             }
 
         }
@@ -141,6 +140,10 @@
         }
     }
     function handleLLMResponse(event) {
+        const doc_contents = get_document_contents();
+        console.log("Document: ", JSON.stringify(doc_contents, null, 2));
+        document.getElementById("doc-info").value = JSON.stringify(doc_contents, null, 2);
+        document.getElementById("chat-context").value = " "
         showLoadingState()
     }
 
@@ -183,5 +186,13 @@
         if (placeholder) {
             placeholder.remove();
         }
+    }
+    function get_document_contents() {
+        const command = {
+            "type": "tool",
+            "tool": "getall",
+            "index": 0
+        }
+        return execute_quill_cmd(command);
     }
 </script>

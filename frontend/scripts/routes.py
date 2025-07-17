@@ -3,7 +3,8 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
 from frontend.scripts.forms import LoginForm
 from frontend.scripts.dbmodels import SessionLocal, User
-from backend.llm import call_ai
+from backend.llm import Call_Ai
+from backend.prompts import Prompts
 import re
 
 
@@ -21,7 +22,8 @@ login_manager.init_app(app)
 login_manager.login_view = "login"  # where to redirect if not logged in
 app.secret_key = "NYZIqkyBr9fOHmPK9H3RgKe82UkdgV22hPYCA6q5kbYW9uuUFGgiAy7rz9dfWosB"
 
-ai = call_ai()
+ai = Call_Ai()
+get_prompts = Prompts()
 #
 # class WorldweaverRoutes():
 #     def __init__(self, llm:call_ai):
@@ -73,11 +75,14 @@ def llm():
         user_text = request.form.get("text")
         print(f"received user text: {user_text}")
         if user_text.startswith("$"):
+            print("user tool call")
             output = ai.get_stub(user_text[1:])
             return output
-
         else:
-            prompt = "tbd"
+            doc = request.form.get("document")
+            context = ""
+            print(f"received document: {doc}\nType: {type(doc)}")
+            prompt = get_prompts.get_toolcall_prompt(doc, context, user_text)
             output = ai.get_response(prompt, user_text)
             json = {"type":"message", "text":output}
 
