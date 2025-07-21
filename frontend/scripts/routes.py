@@ -84,9 +84,9 @@ def llm():
             print(f"received document: {doc}\nType: {type(doc)}")
             prompt = get_prompts.get_toolcall_prompt(doc, context, user_text)
             output = ai.get_response(prompt, user_text)
-            json = output
+            json_output = json.loads(output)
 
-        return json
+        return json_output
     else:
         return render_template("llm.html")
 # Login stuff ________________________________

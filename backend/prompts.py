@@ -80,7 +80,7 @@ class Prompts:
         }}
         
         Remember: Never invent information. If you're unsure, ask for clarification or state that you don't know.
-        
+        Your output will be in the form of a JSON object. As such, keep it in the JSON format without things like comments or exterior statements.
         You will use the quill api to edit the document by returning quill api tool calls.
         Here is the list of tools you have access to:
         <tools>
