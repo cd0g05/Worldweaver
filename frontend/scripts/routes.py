@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app
 from frontend.scripts.forms import LoginForm
 from frontend.scripts.dbmodels import SessionLocal, User
 from backend.llm import call_ai
@@ -57,6 +57,19 @@ def dashboard():
 @login_required
 def story_planner():
     return render_template("pages/story_planner.html")
+
+@app.route("/planning")
+@login_required
+def planning():
+    build_path = os.path.join(current_app.static_folder, "planning-dist", "assets")
+    files = os.listdir(build_path)
+
+    css_file = next((f for f in files if re.match(r'^index-.*\.css$', f)), None)
+    js_file = next((f for f in files if re.match(r'^index-.*\.js$', f)), None)
+    if os.environ.get("DEV_MODE") == "1":
+        return redirect("http://localhost:5173")
+    return render_template("pages/planning.html", css_file=css_file, js_file=js_file)
+
 
 @app.route('/partials/planner/doc')
 def partial_doc():

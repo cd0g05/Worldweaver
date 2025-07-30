@@ -70,3 +70,33 @@ Here is the list of tools you have access to:
 {tools}
 </tools>
 """
+
+------------------------------
+
+Im having trouble with the prompt execution for my program. The goal for this feature is to have the user type their thoughts into a chatbar, and for the llm have a diolouge with the user, prompting the user for different areas of the plan that they can elaborate on. As the llm recieves information from the user, it will use the quill api to edit a document and put the user's thoughts into words. I have mostly built a working model that does most of that. Most of the prompt engineering for the llm to actualy function as an assistant in this regard is still not done yet, but what I am trying to make work is just the base user -> llm -> changes in the document pipeline.
+
+How my program currently works, is there is a form from llm_chatbar that takes user input, as well as a Delta containing the current state of the quill document, and passes that information to a /llm route (routes.py). Within routes.py, it takes the document context and user message and combines it with a (somewhat large) prompt that I wrote from prompts.py. It then gets the llm output, theoreticaly in the form of a JSON object, and returns it to the llm_chatbar page for processing. The JSON object, if its a tool call to edit the document, should be in the format:
+
+{{
+          "type": "tool"
+          "tool": "tool_name"
+          "description": "tool call description"
+          "param1": "value1"
+          "param2": "value2"
+          etc...
+        }}
+
+for example:
+           {
+                "type": "tool",
+                "tool": "insert",
+                "index": 0,
+                "text": "You shall not pass!\n",
+                "style": "bold",
+                "value": True,
+                "source": "api"
+            }
+
+Once the JSON is returned to the llm_chatbar page, it then determines which tool was called for, prints the description to the llm chat, and executes the tool command. The llm_chatbar file is completely functional, and as far as I can tell, it works as it should. It properly executes the tool calls, and sends the messages in the chat.
+
+------------------------------------
