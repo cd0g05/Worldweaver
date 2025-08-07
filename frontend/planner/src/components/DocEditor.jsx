@@ -50,14 +50,14 @@ const DocEditor = forwardRef((props, ref) => {
             case 'fading':
                 return 'animate-glow-fade-out border-transparent';
             default:
-                return 'border-gray-300';
+                return '';
         }
     };
 
     return (
         <div
             onClick={focusEditor}
-            className={`transition-all duration-300 border-4 h-[calc(100vh-120px)] overflow-auto rounded-2xl shadow-lg px-4 pt-2 bg-white cursor-text ${getAnimationClass()}`}
+            className={`transition-all duration-300 h-[calc(100vh-80px)] overflow-auto rounded-2xl shadow-lg px-4 pt-2 bg-white cursor-text ${getAnimationClass()}`}
         >
             {editor ? (
                 <EditorContent editor={editor} className="prose max-w-none focus:outline-none m-2" />

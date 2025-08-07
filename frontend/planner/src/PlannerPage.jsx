@@ -1,6 +1,6 @@
 import PlannerHeader from "./components/planner-header.jsx";
 import DocEditor from "./components/DocEditor.jsx";
-import LLMPanel from "./components/LLMChatPanel.jsx";
+import ChatPanel from "./components/LLMChatPanel.jsx";
 import React, { useRef } from "react";
 
 
@@ -14,9 +14,10 @@ function PlannerPage() {
     return (
         <div>
             <PlannerHeader/>
-            <div className="grid grid-cols-2 gap-4 p-6 h-[calc(100vh-80px)] bg-[#E3E3E6]">
-                <LLMPanel/>
+            <div className="grid grid-cols-2 gap-4 p-3 h-[calc(100vh-56px)] bg-[#E3E3E6] overflow-hidden">
+                <ChatPanel editorRef={editorRef} />
                 <DocEditor ref={editorRef} />
+
             </div>
         </div>
     );

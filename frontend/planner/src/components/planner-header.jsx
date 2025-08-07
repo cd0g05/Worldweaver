@@ -5,7 +5,7 @@ import HamburgerMenu from './hamburger-menu.jsx' // You'll create this from hamb
 
 export default function PlanningHeader() {
     return (
-        <header className="w-full bg-white shadow-sm px-6 py-4 flex justify-between items-center">
+        <header className="w-full bg-white shadow-sm px-2 py-1 flex justify-between items-center">
             <Icon />
 
             <nav className="flex gap-4 items-center">
