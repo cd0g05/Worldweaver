@@ -19,48 +19,61 @@ class call_ai:
             return {
                 "type": "tool",
                 "tool": "insert",
+                "description": "Added Breaking Bad Quote",
                 "index": 0,
-                "text": "You shall not pass!\n",
+                "text": "I am the one who knocks...",
+                "style": "bold",
+                "value": True,
+                "source": "api"
+            }
+        elif content == "insert_end":
+            return {
+                "type": "tool",
+                "tool": "insert",
+                "description": "Added Breaking Bad Quote",
+                "text": "I am the one who knocks...",
                 "style": "bold",
                 "value": True,
                 "source": "api"
             }
 
+        elif content == "llm_message":
+            return {
+                "type": "message",
+                "text": "I am the one who knocks..."
+            }
         elif content == "set":
             return {
             "type": "tool",
             "tool": "set",
             "text": (
-                "Calm. Kindness. Kinship. Love. \nI’ve given up all chance at inner peace. I’ve made my mind a sunless space. I share my dreams with ghosts. I wake up every day to an equation I wrote 15 years ago from which there’s only one conclusion, I’m damned for what I do. My anger, my ego, my unwillingness to yield, my eagerness to fight, they’ve set me on a path from which there is no escape. I yearned to be a savior against injustice without contemplating the cost and by the time I looked down there was no longer any ground beneath my feet.\nWhat is my sacrifice?\nI’m condemned to use the tools of my enemy to defeat them. I burn my decency for someone else’s future. I burn my life to make a sunrise that I know I’ll never see. And the ego that started this fight will never have a mirror or an audience or the light of gratitude. \nSo what do I sacrifice?\n Everything!\n"
+                "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair."
             ),
             "source": "api"
         }
 
-        elif content == "get":
-            return {
-            "type": "tool",
-            "tool": "get",
-            "index": 0,
-            "length": 29
-        }
+        # elif content == "get":
+        #     return {
+        #     "type": "tool",
+        #     "tool": "get",
+        #     "index": 0,
+        #     "length": 29
+        # }
 
-        elif content == "getall":
-            return {
-            "type": "tool",
-            "tool": "getall",
-            "index": 0
-        }
+        # elif content == "getall":
+        #     return {
+        #     "type": "tool",
+        #     "tool": "getall",
+        #     "index": 0
+        # }
 
         elif content == "update":
             return {
             "type": "tool",
             "tool": "update",
-            "delta": {
-                "ops": [
-                    {"delete": 29},
-                    {"insert": "Updated!"}
-                ]
-            },
+            "index": 25,
+            "length": 28,
+            "text": " and the worst of times,",
             "source": "api"
         }
 
@@ -77,8 +90,6 @@ class call_ai:
             return {
             "type": "tool",
             "tool": "deleteall",
-            "index": 0,
-            "length": "quill.getLength()",
             "source": "api"
         }
 
@@ -94,13 +105,13 @@ class call_ai:
             "source": "api"
         }
 
-        elif content == "bounds":
-            return {
-            "type": "tool",
-            "tool": "bounds",
-            "index": 0,
-            "length": 29
-        }
+        # elif content == "bounds":
+        #     return {
+        #     "type": "tool",
+        #     "tool": "bounds",
+        #     "index": 0,
+        #     "length": 29
+        # }
 
     def get_response(self, prompt, content):
         response = client.chat.completions.create(

@@ -1,0 +1,26 @@
+/* Alternative simpler approach using just transitions */
+@import "tailwindcss";
+
+
+
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(147, 51, 234, 0.8), 0 0 60px rgba(147, 51, 234, 0.4);
+    }
+}
+
+@theme {
+    --animate-glow-pulse: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+/* Custom utility for smooth glow transitions */
+.glow-transition {
+    transition: box-shadow 0.6s ease-out;
+}
+
+.glow-static {
+    box-shadow: 0 0 25px rgba(101, 80, 210, 0.7), 0 0 50px rgba(101, 80, 210, 0.35);
+}

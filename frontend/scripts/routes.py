@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app, jsonify
 from frontend.scripts.forms import LoginForm
 from frontend.scripts.dbmodels import SessionLocal, User
 from backend.llm import call_ai
 import re
-
+from backend.prompts import PromptBuilder
+import json
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # this will be `.../frontend/scripts`
 
@@ -21,6 +22,7 @@ login_manager.init_app(app)
 login_manager.login_view = "login"  # where to redirect if not logged in
 app.secret_key = "NYZIqkyBr9fOHmPK9H3RgKe82UkdgV22hPYCA6q5kbYW9uuUFGgiAy7rz9dfWosB"
 
+builder = PromptBuilder()
 ai = call_ai()
 #
 # class WorldweaverRoutes():
@@ -58,6 +60,35 @@ def dashboard():
 def story_planner():
     return render_template("pages/story_planner.html")
 
+@app.route("/planning", methods=["GET", "POST"])
+@login_required
+def planning():
+    build_path = os.path.join(current_app.static_folder, "planning-dist", "assets")
+    files = os.listdir(build_path)
+
+    css_file = next((f for f in files if re.match(r'^index-.*\.css$', f)), None)
+    js_file = next((f for f in files if re.match(r'^index-.*\.js$', f)), None)
+    if os.environ.get("DEV_MODE") == "1":
+        return redirect("http://localhost:5173")
+    if request.method == "POST":
+        user_text = request.form.get("text")
+        print(f"The user's text: {user_text}")
+    return render_template("pages/planning.html", css_file=css_file, js_file=js_file)
+
+@app.route("/test", methods=["GET", "POST"])
+def test():
+    if request.method == "POST":
+        data = request.get_json()
+        user_text = data.get('text', '')
+        timestamp = data.get('timestamp', '')
+
+        print(f"The user's text (/test version): {user_text}, at timestamp: {timestamp}")
+        return jsonify({
+            'status': 'success',
+            'received_text': user_text,
+            'message': 'Message received successfully'
+        })
+
 @app.route('/partials/planner/doc')
 def partial_doc():
     return render_template('partials/planner/doc.html')
@@ -70,18 +101,64 @@ def partial_llm():
 @login_required
 def llm():
     if request.method == "POST":
-        user_text = request.form.get("text")
-        print(f"received user text: {user_text}")
+        data = request.get_json()
+        user_text = data.get('text', '')
+        document = data.get('document', '')
+        chat_history = data.get('chat_history', '')
+
+        # user_text = request.form.get("text")
+        # print(f"received user text: {user_text}")
         if user_text.startswith("$"):
             output = ai.get_stub(user_text[1:])
             return output
 
+        # if user_text.startswith("+"):
+        #     output = "Did you ever hear the tragedy of darth plaguis the wise?"
+        #     return output
+        # if user_text.startswith("-"):
+        #     output = "Did you ever hear the tragedy of darth plaguis the wise?"
+        #     return output
         else:
-            prompt = "tbd"
-            output = ai.get_response(prompt, user_text)
-            json = {"type":"message", "text":output}
+            try:
+                # Get the raw response from your LLM
+                prompt = builder.get_main_prompt(document, chat_history)
+                raw_output = ai.get_response(prompt, user_text)
+                print(f"----------------------------\nThe llm output:\n{raw_output}\n----------------------------")
+                # Try to parse the response as JSON first
+                try:
+                    parsed_output = json.loads(raw_output)
 
-        return json
+                    # Validate that it has the expected structure
+                    if isinstance(parsed_output, dict) and 'type' in parsed_output:
+                        # It's already properly formatted JSON
+                        return jsonify(parsed_output)
+                    else:
+                        # It's JSON but not in our expected format
+                        # Treat it as a message
+                        json_output = {
+                            "type": "message",
+                            "text": raw_output
+                        }
+                        return jsonify(json_output)
+
+                except json.JSONDecodeError:
+                    # The LLM returned plain text, not JSON
+                    # Wrap it in our message format
+                    json_output = {
+                        "type": "message",
+                        "text": raw_output
+                    }
+                    return jsonify(json_output)
+
+            except Exception as e:
+                # Handle any other errors
+                error_response = {
+                    "type": "message",
+                    "text": f"Sorry, I encountered an error: {str(e)}"
+                }
+                return jsonify(error_response)
+        #
+        # return json
     else:
         return render_template("llm.html")
 # Login stuff ________________________________
