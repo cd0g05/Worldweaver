@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import aiIcon from '../../assets/react.svg';
-
+import ReactMarkdown from 'react-markdown'
 // Message type constants
 const MESSAGE_TYPES = {
     USER: 'user',
@@ -132,7 +132,7 @@ const MessageItem = ({ message }) => {
                         </p>
                         {message.tool && (
                             <div className="inline-block bg-white bg-opacity-70 px-2 py-1 rounded text-xs font-mono text-purple-700">
-                                {message.tool}
+                                <ReactMarkdown>{message.tool}</ReactMarkdown>
                             </div>
                         )}
                         {renderToolParams()}
@@ -143,7 +143,7 @@ const MessageItem = ({ message }) => {
                 return (
                     <div>
                         <p className="text-sm text-red-700 font-medium">
-                            {message.content || message.error || 'An error occurred'}
+                            <ReactMarkdown>{message.content || message.error || 'An error occurred'}</ReactMarkdown>
                         </p>
                         {message.details && (
                             <p className="text-xs text-red-600 mt-1 opacity-80">
@@ -156,7 +156,7 @@ const MessageItem = ({ message }) => {
             default:
                 return (
                     <p className="text-sm whitespace-pre-wrap text-gray-800 leading-relaxed">
-                        {message.content}
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
                     </p>
                 );
         }

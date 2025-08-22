@@ -1,4 +1,4 @@
-// StageContext.js
+// StageContext.jsx
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 // Create the context
@@ -17,7 +17,7 @@ const STAGE_CONFIG = [
   {
     id: 1,
     name: 'Tutorial',
-    subStages: ['Getting Started', 'Basic Concepts']
+    subStages: ['Getting Started', 'Basic Concets']
   },
   {
     id: 2,
@@ -105,7 +105,7 @@ export function StageProvider({ children }) {
       window.dispatchEvent(new CustomEvent(STAGE_EVENTS.MAJOR_STAGE_CHANGED, { detail: eventDetail }));
     }
 
-    console.log(`🎯 Stage Event: ${eventType}`, eventDetail);
+    // console.log(`🎯 Stage Event: ${eventType}`, eventDetail);
   }, []);
 
   // Main function to change stages
@@ -153,10 +153,10 @@ export function StageProvider({ children }) {
 
     if (currentSubStage < currentMajor.subStages.length) {
       // Advance within current major stage
-      return changeStage(currentMajorStage, currentSubStage + 1, STAGE_EVENTS.STAGE_ADVANCED);
+      return changeStage(currentMajorStage, currentSubStage + 1, STAGE_EVENTS.STAGE_CHANGED);
     } else if (currentMajorStage < STAGE_CONFIG.length) {
       // Move to next major stage
-      return changeStage(currentMajorStage + 1, 1, STAGE_EVENTS.STAGE_ADVANCED);
+      return changeStage(currentMajorStage + 1, 1, STAGE_EVENTS.STAGE_CHANGED);
     }
 
     console.log('Already at the last stage');
@@ -275,7 +275,7 @@ export const useStage = () => {
 };
 
 // Hook for listening to stage events
-export const useStageEvents = (eventType, handler, dependencies = []) => {
+export const useStageEvents = (eventType, handler) => {
   useEffect(() => {
     if (typeof handler !== 'function') {
       console.error('useStageEvents: handler must be a function');
@@ -287,7 +287,7 @@ export const useStageEvents = (eventType, handler, dependencies = []) => {
     return () => {
       window.removeEventListener(eventType, handler);
     };
-  }, dependencies);
+  }, [eventType, handler]);
 };
 
 // Utility hook to get all stage events in one place

@@ -1,17 +1,150 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import MessageList from './llm_components/MessageList.jsx';
 import ChatInput from './llm_components/ChatInput.jsx';
 import { createUserMessage, createAssistantMessage, createToolMessage, createErrorMessage } from './llm_components/MessageItem';
+import { useStage, useStageEvents, STAGE_EVENTS } from '../StageContext.jsx';
 
-const ChatPanel = ({ editorRef }) => {
+const ChatPanel = ({ editorRef, onLoadingChange }) => {
     // This is the shared state that both components will use
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-
+    const { linearStage } = useStage();
+    const stageHistoryRef = useRef({});
+    const globalHistoryRef = useRef(null);
     // Function to add a message to the list
     const addMessage = (message) => {
         setMessages(prev => [...prev, message]);
     };
+
+    useEffect(() => {
+        if (onLoadingChange) {
+            onLoadingChange(isLoading);
+        }
+    }, [isLoading, onLoadingChange]);
+
+    const pruneHistory = async (messagesToPrune) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/prune', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    history: messagesToPrune
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            else {
+                const prunedData = await response.json();
+                globalHistoryRef.current = prunedData.text;
+                console.log("Saved Chat Context", globalHistoryRef.current);
+            }
+        } catch (error) {
+            console.error('Error with pruning process:', error);
+
+            // Add error message to chat
+            const errorMessage = createErrorMessage(
+                'Issue migrating chat history',
+                error.message
+            );
+            addMessage(errorMessage);
+        } finally {
+            // 6. Clear loading state
+            setIsLoading(false);
+        }
+    }
+    const getTutorial = async (newStage) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/tutorial', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    stage: newStage.linear,
+                    chat_context: " ",
+                    doc_context: " "
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            else {
+                // response should be { type: "message", text:"tutorial text..."}
+                const tutorialMessage = await response.json();
+                return tutorialMessage.text;
+            }
+        } catch (error) {
+            console.error('Error with tutorial process:', error);
+            const errorMessage = createErrorMessage(
+                'Issue delivering tutorial',
+                error.message
+            );
+            addMessage(errorMessage);
+        } finally {
+            // 6. Clear loading state
+            setIsLoading(false);
+        }
+    }
+
+    useStageEvents(STAGE_EVENTS.STAGE_CHANGED, async (event) => {
+        const { oldStage, newStage } = event.detail;
+        console.log("Stage change triggered:", newStage);
+
+        // Use the functional form of setMessages to get current state
+        setMessages(currentMessages => {
+
+            // Get previously saved messages for this stage
+            const previouslySavedMessages = stageHistoryRef.current[oldStage.linear] || [];
+
+            // Compare current messages with previously saved messages
+            const previousMessageCount = previouslySavedMessages.length;
+            const currentMessageCount = currentMessages.length;
+            const newMessageCount = currentMessageCount - previousMessageCount;
+            // console.log(`📊 Stage ${oldStage.linear}: Previously saved: ${previousMessageCount}, Current: ${currentMessageCount}, New: ${newMessageCount}`);
+
+            // Save current messages to history
+            stageHistoryRef.current[oldStage.linear] = [...currentMessages];
+
+            // Prune if needed (don't await here to avoid blocking)
+            if (newMessageCount > 1) {
+                const newMessages = currentMessages.slice(previousMessageCount);
+                // console.log(`🔄 Pruning ${newMessages.length} new messages for stage ${oldStage.linear}`);
+                // console.log('New messages to prune:', newMessages.map(msg => `${msg.type}: ${msg.content?.substring(0, 50)}...`));
+                pruneHistory(newMessages);
+            }
+
+            // Restore or create new messages
+            const savedHistory = stageHistoryRef.current[newStage.linear];
+            if (savedHistory) {
+                return savedHistory;
+            } else {
+
+            // ----------------------------------------
+            // TODO: Make this set the tutorial message
+            // ----------------------------------------
+                return [];
+            }
+        });
+        const savedHistory = stageHistoryRef.current[newStage.linear];
+        if (!savedHistory) {
+            try {
+                const tutorial = await getTutorial(newStage); // ✅ Await the Promise
+                const tutorialMessage = createAssistantMessage(tutorial);
+                setMessages(prev => [tutorialMessage]); // ✅ Add tutorial message
+            } catch (error) {
+                console.error('Failed to get tutorial:', error);
+                // Fallback to hardcoded message
+                const fallbackMessage = createAssistantMessage("Welcome to this new stage, ask the AI Assistant what to do!");
+                setMessages(prev => [fallbackMessage]);
+            }
+        }
+    });
+
 
     // Function that ChatInput will call when user sends a message
     const handleSendMessage = async (userInput) => {
@@ -27,6 +160,7 @@ const ChatPanel = ({ editorRef }) => {
             const docContext = editorRef?.current?.getJSON();
 
             // 4. Send to your /llm endpoint
+            // console.log("Current Stage: ", linearStage);
             const response = await fetch('/llm', {
                 method: 'POST',
                 headers: {
@@ -35,7 +169,8 @@ const ChatPanel = ({ editorRef }) => {
                 body: JSON.stringify({
                     text: userInput,
                     document: docContext,
-                    chat_history: messages
+                    chat_history: messages,
+                    stage: linearStage
                 })
             });
 
@@ -48,6 +183,8 @@ const ChatPanel = ({ editorRef }) => {
             // 5. Handle different response types
             if (data.type === 'tool') {
                 // Create tool message and add to chat
+
+
                 const toolMessage = createToolMessage(data);
                 addMessage(toolMessage);
 
@@ -57,6 +194,18 @@ const ChatPanel = ({ editorRef }) => {
                 // Trigger editor glow effect
                 editorRef?.current?.triggerGlow(1500);
 
+            } else if (data.type === 'document') {
+                const toolMessage = createToolMessage(data.document);
+                addMessage(toolMessage);
+                executeToolCall(data.document);
+                editorRef?.current?.triggerGlow(1500);
+            } else if (data.type === 'both') {
+                const assistantMessage = createAssistantMessage(data.text);
+                addMessage(assistantMessage);
+                const toolMessage = createToolMessage(data.document);
+                addMessage(toolMessage);
+                executeToolCall(data.document);
+                editorRef?.current?.triggerGlow(1500);
             } else if (data.type === 'message') {
                 // Create assistant message and add to chat
                 const assistantMessage = createAssistantMessage(data.text);
@@ -101,7 +250,9 @@ const ChatPanel = ({ editorRef }) => {
                     editorRef.current.setText(toolData.text);
                     break;
                 case 'insert':
-                    editor.commands.insertContentAt(toolData.index || 0, toolData.text);
+                    // editor.commands.insertContentAt(toolData.index || 0, toolData.text);
+                    editor.commands.insertContent(toolData.text);
+
                     break;
                 case 'delete':
                     if (toolData.index !== undefined && toolData.length !== undefined) {

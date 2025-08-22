@@ -1,9 +1,13 @@
 import logging
 import os
 from abc import ABCMeta, abstractmethod
+import dotenv
+from pathlib import Path
+import toml
 from typing import Optional
+# from google.cloud import aiplatform
 
-from anthropic import Anthropic, APIStatusError, APIConnectionError
+# from anthropic import Anthropic, APIStatusError, APIConnectionError
 
 try:
     import vertexai
@@ -26,7 +30,7 @@ class Agent(metaclass=ABCMeta):
         self.system_prompt = system_prompt
 
     @abstractmethod
-    def invoke(self, user_prompt: str) -> str:
+    def invoke(self, user_prompt: str, chat_context:str, doc_context:str) -> str:
         """
         Send the prompts to the LLM and return the response.
         :param user_prompt: specific user prompt
@@ -43,13 +47,34 @@ class Agent(metaclass=ABCMeta):
         """
         pass
 
-    @classmethod
-    def get_agent(cls, agent_type: str, prompt_name: str) -> "Agent":
-        if agent_type == "vertex":
-            prompt = "Talk like a pirate"
-            agent: Agent = GoogleVertexAIAgent(prompt)
-            return agent
+    @staticmethod
+    def _load_system_prompt(prompt_ref: str, prompt_dir_path: Path) -> str:
+        """
+        Helper method to load and format the prompt. Assumes prompt_ref = "name:vers"
+        """
+        if not prompt_dir_path.is_dir():
+            raise NotADirectoryError(f"Prompt directory not found: {prompt_dir_path}")
 
+        fname, vers = prompt_ref.split(":")
+        with open(str(prompt_dir_path / f"{fname}.toml"), 'r') as file:
+            toml_content = toml.load(file)
+
+        if vers == "latest":
+            versions = [key for key in toml_content.keys() if key.startswith('v')]
+            version = max(versions, key=lambda v: int(v[1:]))
+        else:
+            version = f"v{vers}"
+        return toml_content[version]
+
+    @classmethod
+    def get_agent(cls, agent_type: str, prompt_name: str, flag: int) -> "Agent":
+        if agent_type == "anthropic":
+            prompt = "Talk like a pirate"
+            agent: Agent = GoogleVertexAIAgent(prompt_name, os.getenv("GOOGLE_CLOUD_PROJECT"), os.getenv("ANTHROPIC_SONNET_FOUR_LOCATION"), os.getenv("ANTRHOPIC_SONNET_FOUR_ID"), flag)
+            return agent
+        elif agent_type == "gemini":
+            agent: Agent = GoogleVertexAIAgent(prompt_name, os.getenv("GOOGLE_CLOUD_PROJECT"), os.getenv("GEMINI_LOCATION"), os.getenv("GEMINI_PRO_2_5_ID"), flag)
+            return agent
 
 # class ClaudeLLMAgent(Agent):
 #     """
@@ -93,7 +118,11 @@ class GoogleVertexAIAgent(Agent):
     """
     Google Vertex AI LLM agent.
     """
-    def __init__(self, system_prompt: str, project_id: str, location: str, model: str):
+    def __init__(self, prompt_name: str, project_id: str, location: str, model: str, flag: int):
+        if flag == 1:
+            system_prompt = self._load_system_prompt(prompt_name, Path("/Users/cartercripe/dev/code/projects/worldweaver/backend/config/prompts"))
+        else:
+            system_prompt = prompt_name
         super().__init__(system_prompt)
         if not VERTEX_AI_AVAILABLE:
             raise ImportError("google-cloud-aiplatform package is required for Google Vertex AI support")
@@ -102,12 +131,12 @@ class GoogleVertexAIAgent(Agent):
         self.client = GenerativeModel(model)
         self._model = model
 
-    def invoke(self, user_prompt: str) -> str:
+    def invoke(self, user_prompt: str, chat_context:str, doc_context:str) -> str:
         try:
             # Combine system and user prompts for Vertex AI
 
             # TODO   change this to use placeholder vs concatenating
-            full_prompt = f"{self.system_prompt}\n\n{user_prompt}"
+            full_prompt = f"{self.system_prompt.format(chat=chat_context, doc=doc_context)}\n\n{user_prompt}"
 
             response = self.client.generate_content(
                 full_prompt,
@@ -130,3 +159,7 @@ class GoogleVertexAIAgent(Agent):
     def model(self) -> str:
         return self._model
 
+if __name__ == "__main__":
+    dotenv.load_dotenv()
+    agent:Agent = Agent.get_agent("gemini", "tutorial1:1")
+    print(agent.invoke("Who are you?"))
