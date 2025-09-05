@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 const ChatInput = ({ onSendMessage, isLoading = false }) => {
     const [inputValue, setInputValue] = useState('');
@@ -56,13 +57,14 @@ const ChatInput = ({ onSendMessage, isLoading = false }) => {
         <div className="p-4  rounded-b-2xl">
             <div className="flex space-x-3 items-end">
                 <div className="flex-1 relative">
-          <textarea
+
+                    <textarea
               ref={textareaRef}
               value={inputValue}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
-              className="w-full border bg-white border-gray-300 rounded-2xl px-4 py-3 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[50px] max-h-[200px] overflow-y-auto transition-all duration-200"
+              placeholder="Type your message..."
+              className="w-full border bg-white border-gray-300 rounded-4xl px-4 py-3 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[50px] max-h-[200px] overflow-y-auto transition-all duration-200"
               disabled={isLoading}
               rows="1"
           />
@@ -85,12 +87,12 @@ const ChatInput = ({ onSendMessage, isLoading = false }) => {
                 </div>
             </div>
 
-            {/* Debug info - remove this later */}
-            <div className="mt-2 text-xs text-gray-500">
-                Character count: {inputValue.length} |
-                Status: {isLoading ? 'Sending...' : 'Ready'} |
-                Check console for server responses
-            </div>
+            {/*/!* Debug info - remove this later *!/*/}
+            {/*<div className="mt-2 text-xs text-gray-500">*/}
+            {/*    Character count: {inputValue.length} |*/}
+            {/*    Status: {isLoading ? 'Sending...' : 'Ready'} |*/}
+            {/*    Check console for server responses*/}
+            {/*</div>*/}
         </div>
     );
 };

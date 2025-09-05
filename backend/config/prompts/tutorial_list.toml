@@ -1,0 +1,207 @@
+v1 = """
+
+You are a bot that responds with quotes from star wars.
+
+Chat Context:
+{chat}
+
+Document Context:
+{doc}
+"""
+
+v2 = """
+Section 1: Getting Started
+------------------------
+Stage 1: Your Big Idea
+- Topics: core excitement, central hook, what makes the story worth writing
+- Goal: a short description (1–2 sentences) capturing the essence of the story
+
+Stage 2: Working Title
+- Topics: placeholder title, mood it conveys, flexibility to change later
+- Goal: a working name to reference the project
+
+Stage 3: Genre & Flavor
+- Topics: fantasy subgenres (high, low, urban, steampunk, etc.), reader expectations
+- Goal: select a fantasy type that guides tone and worldbuilding
+
+Stage 4: Main Vibe
+- Topics: emotional tone (dark, whimsical, epic, tragic, hopeful)
+- Goal: decide the overall feeling the story should give readers
+
+Stage 5: One-Sentence Pitch
+- Topics: condensing premise into a single clear sentence, focusing on hook
+- Goal: a one-line pitch that sums up the story’s premise
+
+------------------------------------------------------------
+
+Section 2: Worldbuilding Basics
+-----------------------------
+Stage 6: Where Are We?
+- Topics: main setting (world, continent, city, kingdom)
+- Goal: define the central place where the story occurs
+
+Stage 7: When Is It?
+- Topics: time period, level of technology (ancient, medieval, industrial, futuristic)
+- Goal: establish the story’s era and tech baseline
+
+Stage 8: The Map
+- Topics: regions, landmarks, travel routes, geographic diversity
+- Goal: outline a map or list 3–5 key places that matter
+
+Stage 9: The Environment
+- Topics: climate, weather, terrain, natural challenges
+- Goal: describe the environmental backdrop of the story
+
+Stage 10 : Magic: Yes or No?
+- Topics: existence of magic, its role (common, rare, hidden)
+- Goal: decide whether magic exists in the world at all
+
+------------------------------------------------------------
+
+Section 3: Worldbuilding Expanded
+-------------------------------
+Stage 11: Magic Rules
+- Topics: how magic works, its costs, rules, and limits
+- Goal: define clear rules that prevent contradictions
+
+Stage 12: History Snapshot
+- Topics: major past events, myths, wars, discoveries
+- Goal: create 2–3 events that shaped the present world
+
+Stage 13: Groups & Cultures
+- Topics: people, traditions, language, rituals, identities
+- Goal: describe one or more cultures relevant to the story
+
+Stage 14: Government & Power
+- Topics: rulers, political systems, power struggles
+- Goal: define how authority and order are maintained
+
+Stage 15: Everyday Life
+- Topics: food, clothing, work, traditions of daily living
+- Goal: show what ordinary life looks like for people
+
+Stage 16: Creatures
+- Topics: animals, monsters, magical beasts
+- Goal: list notable creatures, both mundane and fantastical
+
+Stage 17: Plants & Resources
+- Topics: crops, rare herbs, minerals, materials
+- Goal: describe plants and resources that matter to society
+
+------------------------------------------------------------
+
+Section 4: Characters
+-------------------
+Stage 18: Your Hero
+- Topics: protagonist’s name, personality, role
+- Goal: define the main character with a short description
+
+Stage 19: What They Want
+- Topics: main goal or dream driving the protagonist
+- Goal: write a clear statement of their biggest desire
+
+Stage 20: What’s in Their Way
+- Topics: main obstacles, fears, or weaknesses
+- Goal: state the biggest challenge the hero faces
+
+Stage 21: Your Villain
+- Topics: antagonist’s identity, threat, influence
+- Goal: define the opposing force of the story
+
+Stage 22: Why They Oppose
+- Topics: villain’s motivation, beliefs, or goals
+- Goal: one-sentence statement of their reason for conflict
+
+Stage 23: Sidekick or Ally
+- Topics: supporting character who aids the hero
+- Goal: describe one close ally and their role
+
+Stage 24: Other Important Characters
+- Topics: mentor, rival, love interest, secondary allies
+- Goal: list 2–3 supporting characters
+
+Stage 25: Character Secrets
+- Topics: hidden truths, backstories, surprises
+- Goal: assign at least one secret to a major character
+
+------------------------------------------------------------
+
+Section 5: Plot Basics
+--------------------
+Stage 26: Choose a Story Shape
+- Topics: 3-act structure, hero’s journey, 7-point arc, etc.
+- Goal: pick a framework for how the story unfolds
+
+Stage 27: Inciting Incident
+- Topics: event that launches the story, disrupts normal life
+- Goal: define what kicks the story into motion
+
+Stage 28: Turning Point #1
+- Topics: first major choice, challenge, or reveal
+- Goal: describe what changes after this moment
+
+Stage 29: Midpoint Twist
+- Topics: surprise, reversal, or shift in stakes
+- Goal: define the event that reorients the story
+
+Stage 30: Turning Point #2
+- Topics: major setback, betrayal, or tough decision
+- Goal: describe the hero’s lowest point before climax
+
+Stage 31: Climax
+- Topics: final showdown, biggest test, highest stakes
+- Goal: define how the ultimate conflict is resolved
+
+Stage 32: Resolution
+- Topics: aftermath, what changes, lessons learned
+- Goal: describe how the story world and characters end up
+
+------------------------------------------------------------
+
+Section 6: Plot Expanded
+----------------------
+Stage 33: Stakes
+- Topics: what’s at risk personally and globally
+- Goal: explain why success or failure matters
+
+Stage 34: Theme (Optional)
+- Topics: deeper message, moral, or idea explored
+- Goal: state a central theme, if desired
+
+Stage 35: Subplots
+- Topics: side stories, romance, rivalries, friendships
+- Goal: add 1–2 subplots that enrich the main story
+
+Stage 36: Foreshadowing
+- Topics: hints, setups, payoffs
+- Goal: list a few key plants and where they’ll pay off
+
+Stage 37: Scene List
+- Topics: major scenes you already imagine
+- Goal: write 5–10 scenes as building blocks of the story
+
+------------------------------------------------------------
+
+Section 7: Writing Style
+----------------------
+Stage 38: Point of View
+- Topics: first person vs. third person, limited vs. omniscient
+- Goal: choose the narrator perspective
+
+Stage 39: Tone
+- Topics: mood (funny, dark, hopeful, tragic)
+- Goal: decide on the emotional flavor of the prose
+
+Stage 40: Audience
+- Topics: kids, teens, adults; content appropriateness
+- Goal: pick your target readership
+
+Stage 41: Length Goal
+- Topics: short story, novella, or novel
+- Goal: set an approximate word-count range
+
+Stage 42: Sample Paragraph
+- Topics: example writing in chosen style, paragraph test
+- Goal: produce a short sample that demonstrates intended voice
+
+"""

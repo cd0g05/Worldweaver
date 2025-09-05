@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from backend.agents.processor import Processor
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, jsonify
 from frontend.scripts.forms import LoginForm
 from frontend.scripts.dbmodels import SessionLocal, User
@@ -7,6 +8,7 @@ from backend.llm import call_ai
 import re
 from backend.prompts import PromptBuilder
 import json
+from backend.agents.current_agent import CurrentAgent
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # this will be `.../frontend/scripts`
 
@@ -17,11 +19,14 @@ app = Flask(
 )
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
+agent = CurrentAgent()
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"  # where to redirect if not logged in
 app.secret_key = "NYZIqkyBr9fOHmPK9H3RgKe82UkdgV22hPYCA6q5kbYW9uuUFGgiAy7rz9dfWosB"
 
+
+processor = Processor("gemini")
 builder = PromptBuilder()
 ai = call_ai()
 #
@@ -32,6 +37,45 @@ ai = call_ai()
 # @app.teardown_appcontext
 # def shutdown_session(exception=None):
 #     SessionLocal.remove()
+def parse_string(input_str: str) -> str:
+    # Extract contents between tags using regex
+    message_match = re.search(r"<message>(.*?)</message>", input_str, re.DOTALL)
+    document_match = re.search(r"<document>(.*?)</document>", input_str, re.DOTALL)
+    message_content = message_match.group(1).strip() if message_match else None
+    document_content = None
+
+    if document_match:
+        raw_doc = document_match.group(1).strip()
+        try:
+            # Try to parse as JSON
+            document_content = json.loads(raw_doc)
+        except json.JSONDecodeError:
+            # Fallback: keep as plain string if invalid JSON
+            document_content = raw_doc
+    if message_content and document_content:
+        result = {
+            "type": "both",
+            "text": message_content,
+            "document": document_content
+        }
+    elif message_content:
+        result = {
+            "type": "message",
+            "text": message_content
+        }
+    elif document_content:
+        result = {
+            "type": "document",
+            "document": document_content
+        }
+    else:
+        result = {
+            "type": "message",
+            "text": input_str
+        }
+
+    return json.dumps(result, indent=2)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -89,6 +133,32 @@ def test():
             'message': 'Message received successfully'
         })
 
+@app.route('/set_agent', methods=["GET", "POST"])
+@login_required
+def set_agent():
+    if request.method == "POST":
+        new_agent = request.form.get("agent")
+        agent.set_agent(int(new_agent))
+        print(f"New agent set to {agent.get_agent()}")
+        return redirect(request.referrer or '/pages/dashboard.html')
+
+@app.route('/advance_agent', methods=["GET", "POST"])
+@login_required
+def advance_agent():
+    if request.method == "POST":
+        agent.advance_agent()
+        print(f"New agent set to {agent.get_agent()}")
+        return redirect(request.referrer or '/pages/dashboard.html')
+
+@app.route('/back_agent', methods=["GET", "POST"])
+@login_required
+def back_agent():
+    if request.method == "POST":
+        agent.back_agent()
+        print(f"New agent set to {agent.get_agent()}")
+        return redirect(request.referrer or '/pages/dashboard.html')
+
+
 @app.route('/partials/planner/doc')
 def partial_doc():
     return render_template('partials/planner/doc.html')
@@ -97,32 +167,78 @@ def partial_doc():
 def partial_llm():
     return render_template('partials/planner/llm.html')
 
+
+@app.route('/prune', methods=["POST"])
+@login_required
+def prune():
+    if request.method == "POST":
+        data = request.get_json()
+        print(f"Pruning: {data}")
+        json_output = {
+            "type": "context",
+            "text": "A pruned context..."
+        }
+        return jsonify(json_output)
+
+@app.route('/tutorial', methods=["POST"])
+@login_required
+def tutorial():
+    if request.method == "POST":
+        data = request.get_json()
+        stage = data.get('stage', '')
+        int_stage = int(stage)
+        chat_context = data.get('chat_context', '')
+        document_context = data.get('doc_context', '')
+        if current_app.config.get("STUB", False):
+            json_output = {
+                "type": "message",
+                "text": "A tutorial for stage {stage}.".format(stage=stage)
+            }
+            return jsonify(json_output)
+        else:
+            try:
+                raw_output = processor.get_tutorial_response(int_stage, chat_context, document_context)
+                json_output = {
+                    "type": "message",
+                    "text": raw_output
+                }
+                return jsonify(json_output)
+            except Exception as e:
+                # Handle any other errors
+                error_response = {
+                    "type": "message",
+                    "text": f"Sorry, I encountered an error with your introduction: {str(e)}"
+                }
+                return jsonify(error_response)
+
 @app.route('/llm', methods=["GET", "POST"])
 @login_required
 def llm():
     if request.method == "POST":
         data = request.get_json()
         user_text = data.get('text', '')
+        # print(f"The user's text: {user_text}")
         document = data.get('document', '')
+        # print(f"The document's text: {document}")
         chat_history = data.get('chat_history', '')
-
-        # user_text = request.form.get("text")
-        # print(f"received user text: {user_text}")
-        if user_text.startswith("$"):
-            output = ai.get_stub(user_text[1:])
+        # print(f"The chat history's text: {chat_history}")
+        stage = agent.get_agent()
+        frontend_stage = int(data.get('stage', ''))
+        # print(f"Frontend stage: {frontend_stage}")
+        if current_app.config.get("STUB", False):
+            output = ai.get_stub(user_text)
+            if output.startswith("<"):
+                output = parse_string(output)
+            elif output == "failed":
+                return "error"
             return output
 
-        # if user_text.startswith("+"):
-        #     output = "Did you ever hear the tragedy of darth plaguis the wise?"
-        #     return output
-        # if user_text.startswith("-"):
-        #     output = "Did you ever hear the tragedy of darth plaguis the wise?"
-        #     return output
+
         else:
             try:
                 # Get the raw response from your LLM
-                prompt = builder.get_main_prompt(document, chat_history)
-                raw_output = ai.get_response(prompt, user_text)
+                print("Attempting llm call:")
+                raw_output = processor.get_llm_response(frontend_stage, user_text, chat_history, document)
                 print(f"----------------------------\nThe llm output:\n{raw_output}\n----------------------------")
                 # Try to parse the response as JSON first
                 try:
@@ -144,11 +260,10 @@ def llm():
                 except json.JSONDecodeError:
                     # The LLM returned plain text, not JSON
                     # Wrap it in our message format
-                    json_output = {
-                        "type": "message",
-                        "text": raw_output
-                    }
-                    return jsonify(json_output)
+                    json_output = parse_string(raw_output)
+                    print(f"Recieved: {json_output}")
+                    # print(f"Returning:\n{json_output}")
+                    return json_output
 
             except Exception as e:
                 # Handle any other errors
@@ -161,6 +276,11 @@ def llm():
         # return json
     else:
         return render_template("llm.html")
+
+
+
+
+
 # Login stuff ________________________________
 
 @app.route("/login", methods=["GET", "POST"])
