@@ -19,7 +19,7 @@ function PlannerPage() {
         <div>
             {/* ✅ No more prop drilling needed */}
             <PlannerHeader chatIsLoading={chatIsLoading} />
-            <div className="grid grid-cols-2 gap-4 p-3 h-[calc(100vh-56px)] bg-[#E3E3E6] overflow-hidden">
+            <div className="grid grid-cols-2 gap-4 p-3 h-[calc(100vh-66px)] bg-[#E3E3E6] overflow-hidden">
                 <ChatPanel
                     editorRef={editorRef}
                     onLoadingChange={setChatIsLoading}

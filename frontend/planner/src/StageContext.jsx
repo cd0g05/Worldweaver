@@ -16,39 +16,100 @@ export const STAGE_EVENTS = {
 const STAGE_CONFIG = [
   {
     id: 1,
-    name: 'Tutorial',
-    subStages: ['Getting Started', 'Basic Concets']
+    name: 'Getting Started',
+    subStages: [
+      'Your Big Idea',
+      'Working Title',
+      'Genre & Flavor',
+      'Main Vibe',
+      'One-Sentence Pitch'
+    ]
   },
   {
     id: 2,
-    name: 'Worldbuilding',
-    subStages: ['Magic System', 'Geography', 'Architecture', 'Culture', 'History']
+    name: 'Worldbuilding Basics',
+    subStages: [
+      'Setting',
+      'Time Period',
+      'The Map',
+      'The Environment',
+      'Magic: Yes or No'
+    ]
   },
   {
     id: 3,
-    name: 'Character Building',
-    subStages: ['Protagonist', 'Antagonist', 'Side Characters', 'Relationships']
+    name: 'Worldbuilding Expanded',
+    subStages: [
+      'Magic Rules',
+      'History Snapshot',
+      'Groups & Cultures',
+      'Government & Power',
+      'Everyday Life',
+      'Creatures',
+      'Plants & Resources'
+    ]
   },
   {
     id: 4,
-    name: 'Plot Building',
-    subStages: ['Story Structure', 'Conflict', 'Pacing', 'Themes']
+    name: 'Characters',
+    subStages: [
+      'Your Hero',
+      'What They Want',
+      'What’s in Their Way',
+      'Your Villain',
+      'Why They Oppose',
+      'Sidekick or Ally',
+      'Other Important Characters',
+      'Character Secrets'
+    ]
   },
   {
     id: 5,
+    name: 'Plot Basics',
+    subStages: [
+      'Choose a Story Shape',
+      'Inciting Incident',
+      'Turning Point #1',
+      'Midpoint Twist',
+      'Turning Point #2',
+      'Climax',
+      'Resolution'
+    ]
+  },
+  {
+    id: 6,
+    name: 'Plot Expanded',
+    subStages: [
+      'Stakes',
+      'Theme (Optional)',
+      'Subplots',
+      'Foreshadowing',
+      'Scene List'
+    ]
+  },
+  {
+    id: 7,
     name: 'Writing Style',
-    subStages: ['Voice', 'Tone', 'POV', 'Style Guide']
+    subStages: [
+      'Point of View',
+      'Tone',
+      'Audience',
+      'Length Goal',
+      'Sample Paragraph'
+    ]
   }
 ];
 
 // Calculate linear stage mapping - adjust this to match your backend's expectations
 const calculateLinearStage = (majorStage, subStage) => {
   const stagesBeforeCurrent = {
-    1: 0,  // Tutorial starts at 0
-    2: 2,  // Worldbuilding starts after Tutorial (2 substages)
-    3: 7,  // Character Building starts after Worldbuilding (5 substages)
-    4: 11, // Plot Building starts after Character Building (4 substages)
-    5: 15  // Writing Style starts after Plot Building (4 substages)
+    1: 0,   // Getting Started begins at stage 0
+    2: 5,   // Worldbuilding Basics starts after 5 stages
+    3: 10,  // Worldbuilding Expanded starts after 10 stages
+    4: 17,  // Characters starts after 17 stages
+    5: 25,  // Plot Basics starts after 25 stages
+    6: 32,  // Plot Expanded starts after 32 stages
+    7: 37   // Writing Style starts after 37 stages
   };
 
   return stagesBeforeCurrent[majorStage] + subStage;

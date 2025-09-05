@@ -229,7 +229,10 @@ def llm():
             output = ai.get_stub(user_text)
             if output.startswith("<"):
                 output = parse_string(output)
+            elif output == "failed":
+                return "error"
             return output
+
 
         else:
             try:

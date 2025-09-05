@@ -6,7 +6,11 @@ import { useStage, useStageEvents, STAGE_EVENTS } from '../StageContext.jsx';
 
 const ChatPanel = ({ editorRef, onLoadingChange }) => {
     // This is the shared state that both components will use
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([createAssistantMessage("**Welcome to the start of your novel-planning journey!** Before we jump in, here’s how this app works: you’ll be chatting with me, and together we’ll work through your story step by step. Each stage has a clear goal. As you share your thoughts, I’ll guide you, ask questions, and help you shape your ideas. Once we both decide you’ve met the goal for a stage, your answer will be added directly into your interactive planning document. This way, by the time we finish, you’ll have a complete plan you can use to write your novel — or even feed to an AI to draft your story without it making things up.\n" +
+    "\n" +
+    "This first stage is about your Big Idea. Every story starts with a spark — the one thing that makes you want to tell this tale. Don’t worry about details yet; this is just about capturing the essence of what excites you. Maybe it’s “a hidden heir must claim their throne” or “a wandering mage searches for lost gods.” It can be as short as a sentence or two.\n" +
+    "\n" +
+    "The goal here is simple: write down your story’s core concept in a way that gets you excited. Everything else — your characters, your world, your plot — will grow from this seed. By the end of this stage, you’ll have the foundation that guides the rest of your planning.")]);
     const [isLoading, setIsLoading] = useState(false);
     const { linearStage } = useStage();
     const stageHistoryRef = useRef({});
@@ -111,12 +115,12 @@ const ChatPanel = ({ editorRef, onLoadingChange }) => {
             stageHistoryRef.current[oldStage.linear] = [...currentMessages];
 
             // Prune if needed (don't await here to avoid blocking)
-            if (newMessageCount > 1) {
-                const newMessages = currentMessages.slice(previousMessageCount);
-                // console.log(`🔄 Pruning ${newMessages.length} new messages for stage ${oldStage.linear}`);
-                // console.log('New messages to prune:', newMessages.map(msg => `${msg.type}: ${msg.content?.substring(0, 50)}...`));
-                pruneHistory(newMessages);
-            }
+            // if (newMessageCount > 1) {
+            //     const newMessages = currentMessages.slice(previousMessageCount);
+            //     // console.log(`🔄 Pruning ${newMessages.length} new messages for stage ${oldStage.linear}`);
+            //     // console.log('New messages to prune:', newMessages.map(msg => `${msg.type}: ${msg.content?.substring(0, 50)}...`));
+            //     pruneHistory(newMessages);
+            // }
 
             // Restore or create new messages
             const savedHistory = stageHistoryRef.current[newStage.linear];
@@ -250,8 +254,12 @@ const ChatPanel = ({ editorRef, onLoadingChange }) => {
                     editorRef.current.setText(toolData.text);
                     break;
                 case 'insert':
-                    // editor.commands.insertContentAt(toolData.index || 0, toolData.text);
-                    editor.commands.insertContent(toolData.text);
+                    // if (toolData.index) {
+                    //     editor.commands.insertContentAt(toolData.index || 0, toolData.text);
+                    // }
+                    // else {
+                        editor.commands.insertContent(toolData.text);
+                    // }
 
                     break;
                 case 'delete':

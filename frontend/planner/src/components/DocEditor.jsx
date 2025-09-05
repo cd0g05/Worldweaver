@@ -1,13 +1,15 @@
 import React, { useEffect, useImperativeHandle, useState, forwardRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Heading from "@tiptap/extension-heading";
+
 
 const DocEditor = forwardRef((props, ref) => {
     const [animationState, setAnimationState] = useState('idle'); // 'idle', 'glowing', 'fading'
 
     const editor = useEditor({
-        extensions: [StarterKit],
-        content: "<p>Begin chatting with the AI Assistant, and your plan will materialize here</p>",
+        extensions: [StarterKit, Heading.configure({ levels: [1, 2, 3] })],
+        content: "",
         onFocus: () => setAnimationState('glowing'),
         onBlur: () => setAnimationState('fading'),
     });
@@ -57,7 +59,7 @@ const DocEditor = forwardRef((props, ref) => {
     return (
         <div
             onClick={focusEditor}
-            className={`transition-all duration-300 h-[calc(100vh-80px)] overflow-auto rounded-2xl shadow-lg px-4 pt-2 bg-white cursor-text ${getAnimationClass()}`}
+            className={`transition-all duration-300 h-[calc(100vh-85px)] overflow-auto rounded-2xl shadow-lg px-4 pt-2 bg-white cursor-text ${getAnimationClass()}`}
         >
             {editor ? (
                 <EditorContent editor={editor} className="prose max-w-none focus:outline-none m-2" />

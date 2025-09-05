@@ -47,6 +47,7 @@ class Processor:
     def get_stage_title(self, num: int) -> str:
         names = {
             # Section 1: Getting Started
+            0: "Stage 0: Tutorial",
             1: "Stage 1: Your Big Idea",
             2: "Stage 2: Working Title",
             3: "Stage 3: Genre & Flavor",

@@ -64,7 +64,7 @@ const ChatInput = ({ onSendMessage, isLoading = false }) => {
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
-              className="w-full border bg-white border-gray-300 rounded-full px-4 py-3 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[50px] max-h-[200px] overflow-y-auto transition-all duration-200"
+              className="w-full border bg-white border-gray-300 rounded-4xl px-4 py-3 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[50px] max-h-[200px] overflow-y-auto transition-all duration-200"
               disabled={isLoading}
               rows="1"
           />
@@ -87,12 +87,12 @@ const ChatInput = ({ onSendMessage, isLoading = false }) => {
                 </div>
             </div>
 
-            {/* Debug info - remove this later */}
-            <div className="mt-2 text-xs text-gray-500">
-                Character count: {inputValue.length} |
-                Status: {isLoading ? 'Sending...' : 'Ready'} |
-                Check console for server responses
-            </div>
+            {/*/!* Debug info - remove this later *!/*/}
+            {/*<div className="mt-2 text-xs text-gray-500">*/}
+            {/*    Character count: {inputValue.length} |*/}
+            {/*    Status: {isLoading ? 'Sending...' : 'Ready'} |*/}
+            {/*    Check console for server responses*/}
+            {/*</div>*/}
         </div>
     );
 };
