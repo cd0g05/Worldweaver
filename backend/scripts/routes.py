@@ -2,20 +2,24 @@ import os
 from datetime import datetime
 from backend.agents.processor import Processor
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app, jsonify
-from frontend.scripts.forms import LoginForm
-from frontend.scripts.dbmodels import SessionLocal, User
-from backend.llm import call_ai
+from backend.scripts.forms import LoginForm
+from backend.scripts.dbmodels import SessionLocal, User
+from backend.scripts.llm import call_ai
 import re
-from backend.prompts import PromptBuilder
+from backend.scripts.prompts import PromptBuilder
 import json
 from backend.agents.current_agent import CurrentAgent
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # this will be `.../frontend/scripts`
+PROJ = Path(__file__).resolve().parents[2]
+TEMPLATES_DIR = PROJ / "frontend" / "templates"
+STATIC_DIR = PROJ / "frontend" / "static"
 
 app = Flask(
     __name__,
-    template_folder=os.path.join(BASE_DIR, "..", "templates"),
-    static_folder=os.path.join(BASE_DIR, "..", "static")
+    template_folder=str(TEMPLATES_DIR),
+    static_folder=str(STATIC_DIR),        # where Flask will serve /static from
+    static_url_path="/static",
 )
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 

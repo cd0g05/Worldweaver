@@ -1,5 +1,5 @@
-from frontend.scripts.routes import app
-from frontend.scripts.dbmodels import SessionLocal, User
+from backend.scripts.routes import app
+from backend.scripts.dbmodels import SessionLocal, User
 import argparse
 
 def create_test_user():
