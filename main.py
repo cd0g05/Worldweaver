@@ -22,15 +22,26 @@ def create_test_user():
     session.close()
 
 if __name__ == "__main__":
-    create_test_user()
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--stub", action="store_true", help="Enable stub mode")
-    args = parser.parse_args()
+    try:
+        print("Starting WorldWeaver application...")
+        create_test_user()
+        
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--stub", action="store_true", help="Enable stub mode")
+        args = parser.parse_args()
 
-    # put the stub flag into Flask's config
-    app.config["STUB"] = args.stub
-    print(" * Stub mode: ", args.stub)
+        # put the stub flag into Flask's config
+        app.config["STUB"] = args.stub
+        print(f" * Stub mode: {args.stub}")
 
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+        import os
+        port = int(os.environ.get("PORT", 5000))
+        print(f" * Starting server on 0.0.0.0:{port}")
+        print(f" * DEV_MODE: {os.environ.get('DEV_MODE', 'not set')}")
+        
+        app.run(host="0.0.0.0", port=port, debug=False)
+    except Exception as e:
+        print(f"ERROR: Failed to start application: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)

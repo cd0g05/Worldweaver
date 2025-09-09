@@ -26,12 +26,23 @@ COPY . .
 # Build the React frontend
 RUN cd frontend/planner && npm run build
 
-# Expose port (Railway uses PORT env var)
-EXPOSE $PORT
+# Create necessary directories and files
+RUN mkdir -p /app/backend/scripts && \
+    mkdir -p /app/frontend/templates && \
+    mkdir -p /app/frontend/static
 
 # Set environment variables
 ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
+ENV PYTHONPATH=/app
+ENV DEV_MODE=0
 
-# Run the application
-CMD ["python", "main.py"]
+# Expose port 5000 (default for Railway)
+EXPOSE 5000
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Run the application with error output
+CMD ["python", "-u", "main.py"]
