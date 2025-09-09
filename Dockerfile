@@ -26,8 +26,8 @@ COPY . .
 # Build the React frontend
 RUN cd frontend/planner && npm run build
 
-# Expose port 5000 (Flask default)
-EXPOSE 5000
+# Expose port (Railway uses PORT env var)
+EXPOSE $PORT
 
 # Set environment variables
 ENV FLASK_APP=main.py
