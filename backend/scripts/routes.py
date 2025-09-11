@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from backend.agents.processor import Processor
-from flask import Flask, render_template, request, redirect, url_for, flash, current_app, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app, jsonify, session
 from backend.scripts.forms import LoginForm
 from backend.scripts.dbmodels import SessionLocal, User
 from backend.scripts.llm import call_ai
@@ -9,6 +9,7 @@ import re
 from backend.scripts.prompts import PromptBuilder
 import json
 from backend.agents.current_agent import CurrentAgent
+from backend.utils.conversation_logger import conversation_logger
 from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[2]
@@ -33,6 +34,54 @@ app.secret_key = "NYZIqkyBr9fOHmPK9H3RgKe82UkdgV22hPYCA6q5kbYW9uuUFGgiAy7rz9dfWo
 processor = Processor("gemini")
 builder = PromptBuilder()
 ai = call_ai()
+
+# Conversation Session Management ________________________________
+
+def start_new_conversation_session():
+    """
+    Always create a new conversation session and log file for the current user.
+    This will be called every time the user visits /planning.
+    """
+    if current_user.is_authenticated:
+        # End any existing session first
+        session_key = f"conversation_session_{current_user.id}"
+        if session_key in session:
+            conversation_logger.log_session_end()
+            
+        # Always start a new conversation session
+        username = current_user.email.split('@')[0]  # Use email prefix as username
+        log_file = conversation_logger.start_new_conversation(username)
+        session[session_key] = {
+            'log_file': log_file,
+            'start_time': datetime.now().isoformat()
+        }
+        print(f"Started new conversation session for {username}: {log_file}")
+        
+        return session[session_key]
+    return None
+
+def ensure_conversation_session():
+    """
+    Ensure that a conversation session is active for the current user.
+    This is used by /llm and /tutorial routes to make sure logging is active.
+    """
+    if current_user.is_authenticated:
+        session_key = f"conversation_session_{current_user.id}"
+        
+        # Check if we already have an active conversation session
+        if session_key not in session:
+            # This shouldn't happen if user came through /planning, but create one just in case
+            username = current_user.email.split('@')[0]
+            log_file = conversation_logger.start_new_conversation(username)
+            session[session_key] = {
+                'log_file': log_file,
+                'start_time': datetime.now().isoformat()
+            }
+            print(f"Created fallback conversation session for {username}: {log_file}")
+        
+        return session[session_key]
+    return None
+
 #
 # class WorldweaverRoutes():
 #     def __init__(self, llm:call_ai):
@@ -119,13 +168,16 @@ def story_planner():
 @app.route("/planning", methods=["GET", "POST"])
 @login_required
 def planning():
+    # Always create a new conversation session and log file
+    start_new_conversation_session()
+    
     build_path = os.path.join(current_app.static_folder, "planning-dist", "assets")
     files = os.listdir(build_path)
 
     css_file = next((f for f in files if re.match(r'^index-.*\.css$', f)), None)
     js_file = next((f for f in files if re.match(r'^index-.*\.js$', f)), None)
-    if os.environ.get("DEV_MODE") == "1":
-        return redirect("http://localhost:5173")
+    # if os.environ.get("DEV_MODE") == "1":
+    #     return redirect("http://localhost:5173")
     if request.method == "POST":
         user_text = request.form.get("text")
         print(f"The user's text: {user_text}")
@@ -196,24 +248,57 @@ def prune():
 @login_required
 def tutorial():
     if request.method == "POST":
+        # Ensure conversation session is active
+        ensure_conversation_session()
+        
         data = request.get_json()
         stage = data.get('stage', '')
         int_stage = int(stage)
         chat_context = data.get('chat_context', '')
         document_context = data.get('doc_context', '')
+        
+        # Log the incoming tutorial request
+        conversation_logger.log_tutorial_request(
+            stage=int_stage,
+            chat_context=chat_context,
+            document_context=document_context
+        )
+        
         if current_app.config.get("STUB", False):
             json_output = {
                 "type": "message",
                 "text": "A tutorial for stage {stage}.".format(stage=stage)
             }
+            stub_metadata = {"model": "stub", "prompt_name": f"tutorial_stage_{stage}", "stage": int_stage}
+            conversation_logger.log_tutorial_response(
+                raw_output=f"STUB: A tutorial for stage {stage}.",
+                processed_output=json_output,
+                metadata=stub_metadata
+            )
             return jsonify(json_output)
         else:
             try:
-                raw_output = processor.get_tutorial_response(int_stage, chat_context, document_context)
+                processor_result = processor.get_tutorial_response(int_stage, chat_context, document_context)
+                
+                # Handle both old format (string) and new format (tuple)
+                if isinstance(processor_result, tuple):
+                    raw_output, metadata = processor_result
+                else:
+                    raw_output = processor_result
+                    metadata = {"model": "unknown", "prompt_name": f"tutorial_stage_{int_stage}", "stage": int_stage}
+                
                 json_output = {
                     "type": "message",
                     "text": raw_output
                 }
+                
+                # Log the tutorial response
+                conversation_logger.log_tutorial_response(
+                    raw_output=raw_output,
+                    processed_output=json_output,
+                    metadata=metadata
+                )
+                
                 return jsonify(json_output)
             except Exception as e:
                 # Handle any other errors
@@ -221,22 +306,48 @@ def tutorial():
                     "type": "message",
                     "text": f"Sorry, I encountered an error with your introduction: {str(e)}"
                 }
+                
+                # Log the error
+                conversation_logger.log_error(
+                    error_type="TUTORIAL_ERROR",
+                    error_message=str(e),
+                    context={
+                        "stage": int_stage,
+                        "chat_context": chat_context,
+                        "document_context": document_context
+                    }
+                )
+                
+                conversation_logger.log_tutorial_response(
+                    raw_output="ERROR_OCCURRED",
+                    processed_output=error_response,
+                    metadata={"stage": int_stage}
+                )
+                
                 return jsonify(error_response)
 
 @app.route('/llm', methods=["GET", "POST"])
 @login_required
 def llm():
     if request.method == "POST":
+        # Ensure conversation session is active
+        ensure_conversation_session()
+        
         data = request.get_json()
         user_text = data.get('text', '')
-        # print(f"The user's text: {user_text}")
         document = data.get('document', '')
-        # print(f"The document's text: {document}")
         chat_history = data.get('chat_history', '')
-        # print(f"The chat history's text: {chat_history}")
-        stage = agent.get_agent()
+        # stage = agent.get_agent()
         frontend_stage = int(data.get('stage', ''))
-        # print(f"Frontend stage: {frontend_stage}")
+        
+        # Log the incoming LLM request
+        conversation_logger.log_llm_request(
+            user_message=user_text,
+            chat_history=chat_history,
+            document_context=document,
+            frontend_stage=frontend_stage
+        )
+        
         if current_app.config.get("STUB", False):
             output = ai.get_stub(user_text)
             if output.startswith("<"):
@@ -245,13 +356,19 @@ def llm():
                 return "error"
             return output
 
-
         else:
             try:
                 # Get the raw response from your LLM
-                print("Attempting llm call:")
-                raw_output = processor.get_llm_response(frontend_stage, user_text, chat_history, document)
-                print(f"----------------------------\nThe llm output:\n{raw_output}\n----------------------------")
+                conversation_logger.log_message("Attempting llm call...")
+                processor_result = processor.get_llm_response(frontend_stage, user_text, chat_history, document)
+                
+                # Handle both old format (string) and new format (tuple)
+                if isinstance(processor_result, tuple):
+                    raw_output, metadata = processor_result
+                else:
+                    raw_output = processor_result
+                    metadata = {"model": "unknown", "prompt_name": "unknown", "stage": frontend_stage}
+
                 # Try to parse the response as JSON first
                 try:
                     parsed_output = json.loads(raw_output)
@@ -259,6 +376,12 @@ def llm():
                     # Validate that it has the expected structure
                     if isinstance(parsed_output, dict) and 'type' in parsed_output:
                         # It's already properly formatted JSON
+                        conversation_logger.log_llm_response(
+                            raw_output=raw_output,
+                            processed_output=parsed_output,
+                            processing_type="json_direct",
+                            metadata=metadata
+                        )
                         return jsonify(parsed_output)
                     else:
                         # It's JSON but not in our expected format
@@ -267,15 +390,46 @@ def llm():
                             "type": "message",
                             "text": raw_output
                         }
+                        conversation_logger.log_llm_response(
+                            raw_output=raw_output,
+                            processed_output=json_output,
+                            processing_type="json_wrapped",
+                            metadata=metadata
+                        )
                         return jsonify(json_output)
 
                 except json.JSONDecodeError:
                     # The LLM returned plain text, not JSON
                     # Wrap it in our message format
-                    json_output = parse_string(raw_output)
-                    print(f"Recieved: {json_output}")
-                    # print(f"Returning:\n{json_output}")
-                    return json_output
+                    json_output_str = parse_string(raw_output)
+                    try:
+                        json_output = json.loads(json_output_str)
+                        conversation_logger.log_llm_response(
+                            raw_output=raw_output,
+                            processed_output=json_output,
+                            processing_type="string_parsed",
+                            metadata=metadata
+                        )
+                        print(f"Recieved: {json_output_str}")
+                        return json_output_str
+                    except json.JSONDecodeError as parse_error:
+                        # Fallback to basic message format
+                        fallback_output = {
+                            "type": "message",
+                            "text": raw_output
+                        }
+                        conversation_logger.log_llm_response(
+                            raw_output=raw_output,
+                            processed_output=fallback_output,
+                            processing_type="fallback",
+                            metadata=metadata
+                        )
+                        conversation_logger.log_error(
+                            error_type="JSON_PARSE_ERROR",
+                            error_message=str(parse_error),
+                            context={"raw_output": raw_output, "parsed_attempt": json_output_str, "metadata": metadata}
+                        )
+                        return jsonify(fallback_output)
 
             except Exception as e:
                 # Handle any other errors
@@ -283,6 +437,20 @@ def llm():
                     "type": "message",
                     "text": f"Sorry, I encountered an error: {str(e)}"
                 }
+                conversation_logger.log_error(
+                    error_type="LLM_ERROR",
+                    error_message=str(e),
+                    context={
+                        "user_text": user_text,
+                        "frontend_stage": frontend_stage
+                    }
+                )
+                conversation_logger.log_llm_response(
+                    raw_output="ERROR_OCCURRED",
+                    processed_output=error_response,
+                    processing_type="error",
+                    metadata={"stage": frontend_stage}
+                )
                 return jsonify(error_response)
         #
         # return json

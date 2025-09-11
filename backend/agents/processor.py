@@ -2,6 +2,7 @@ from pyexpat import model
 
 from backend.agents.agent import Agent
 from backend.agents.agent_map import AgentMap
+from backend.utils.conversation_logger import conversation_logger
 from pathlib import Path
 import toml
 
@@ -15,19 +16,74 @@ class Processor:
         try:
             prompt_name: str = self.agent_map.get_prompt(stage)
         except KeyError as e:
-            return f"Invalid stage: {e}"
+            error_msg = f"Invalid stage: {e}"
+            conversation_logger.log_error(
+                error_type="PROCESSOR_STAGE_ERROR",
+                error_message=error_msg,
+                context={"stage": stage, "available_stages": list(self.agent_map.agent_map.keys())}
+            )
+            return error_msg
+        
         model: str = "gemini"
+        
+        # Log processor activity
+        conversation_logger.log_message(f"Processor invoking {model} with prompt '{prompt_name}' for stage {stage}")
+        
         agent: Agent = Agent.get_agent(model, prompt_name, 1)
-        return agent.invoke(user_prompt, chat_context, document_context)
+        
+        try:
+            response = agent.invoke(user_prompt, chat_context, document_context)
+            
+            # Log successful processor response
+            conversation_logger.log_message(f"Processor received response from {model} ({len(response)} characters)")
+            
+            return response, {"prompt_name": prompt_name, "model": model, "stage": stage}
+        
+        except Exception as e:
+            error_msg = f"Agent invocation failed: {str(e)}"
+            conversation_logger.log_error(
+                error_type="PROCESSOR_AGENT_ERROR",
+                error_message=error_msg,
+                context={
+                    "stage": stage,
+                    "prompt_name": prompt_name,
+                    "model": model,
+                    "user_prompt": user_prompt[:100] + "..." if len(user_prompt) > 100 else user_prompt
+                }
+            )
+            return error_msg
 
     def get_tutorial_response(self, stage:int, chat_context:str, document_context:str):
-        stage_list = self.get_toml_contents("tutorial_list:2", Path("/Users/cartercripe/dev/code/projects/worldweaver/backend/config/prompts"))
-        unformatted_prompt = self.get_toml_contents("tutorial_prompt:1", Path("/Users/cartercripe/dev/code/projects/worldweaver/backend/config/prompts"))
-        stage_title = self.get_stage_title(stage)
-        formatted_prompt = unformatted_prompt.format(stages_list=stage_list, stage_title=stage_title, doc="{doc}", chat="{chat}")
-        agent: Agent = Agent.get_agent(self.model, formatted_prompt, 0)
+        try:
+            stage_list = self.get_toml_contents("tutorial_list:2", Path("backend/config/prompts"))
+            unformatted_prompt = self.get_toml_contents("tutorial_prompt:1", Path("backend/config/prompts"))
+            stage_title = self.get_stage_title(stage)
+            formatted_prompt = unformatted_prompt.format(stages_list=stage_list, stage_title=stage_title, doc="{doc}", chat="{chat}")
+            
+            # Log tutorial processor activity
+            conversation_logger.log_message(f"Tutorial processor invoking {self.model} for stage {stage} ({stage_title})")
+            
+            agent: Agent = Agent.get_agent(self.model, formatted_prompt, 0)
 
-        return agent.invoke("", chat_context, document_context)
+            response = agent.invoke("", chat_context, document_context)
+            
+            # Log successful tutorial response
+            conversation_logger.log_message(f"Tutorial processor received response from {self.model} ({len(response)} characters)")
+            
+            return response, {"prompt_name": f"tutorial_stage_{stage}", "model": self.model, "stage": stage, "stage_title": stage_title}
+        
+        except Exception as e:
+            error_msg = f"Tutorial processor failed: {str(e)}"
+            conversation_logger.log_error(
+                error_type="PROCESSOR_TUTORIAL_ERROR",
+                error_message=error_msg,
+                context={
+                    "stage": stage,
+                    "model": self.model,
+                    "stage_title": self.get_stage_title(stage)
+                }
+            )
+            return error_msg
 
     def get_toml_contents(self, file_name: str, file_dir_path: Path) -> str:
         if not file_dir_path.is_dir():

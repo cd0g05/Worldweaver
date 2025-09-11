@@ -1,6 +1,10 @@
 from backend.scripts.routes import app
 from backend.scripts.dbmodels import SessionLocal, User
 import argparse
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def create_test_user():
     session = SessionLocal()
@@ -35,7 +39,7 @@ if __name__ == "__main__":
         print(f" * Stub mode: {args.stub}")
 
         import os
-        port = int(os.environ.get("PORT", 5000))
+        port = int(os.environ.get("PORT", 5002))
         print(f" * Starting server on 0.0.0.0:{port}")
         print(f" * DEV_MODE: {os.environ.get('DEV_MODE', 'not set')}")
         

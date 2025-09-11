@@ -2,7 +2,7 @@ class AgentMap:
     def __init__(self):
         prompt_list = [
             # Stage 1: Getting Started
-            "tutorial:latest"
+            "tutorial:latest",
             "big_idea:latest",
             "working_title:latest",
             "genre:latest",

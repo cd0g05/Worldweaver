@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import aiIcon from '../../assets/react.svg';
 import ReactMarkdown from 'react-markdown'
+
+// Polyfill for crypto.randomUUID() for older browsers
+const generateUUID = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    // Fallback for older browsers
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
+
 // Message type constants
 const MESSAGE_TYPES = {
     USER: 'user',
@@ -201,21 +215,21 @@ const MessageItem = ({ message }) => {
 
 // Helper functions to create different message types
 export const createUserMessage = (content) => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     type: MESSAGE_TYPES.USER,
     content,
     timestamp: Date.now()
 });
 
 export const createAssistantMessage = (content) => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     type: MESSAGE_TYPES.ASSISTANT,
     content,
     timestamp: Date.now()
 });
 
 export const createToolMessage = (toolData) => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     type: MESSAGE_TYPES.TOOL,
     tool: toolData.tool,
     description: toolData.description,
@@ -224,7 +238,7 @@ export const createToolMessage = (toolData) => ({
 });
 
 export const createErrorMessage = (error, details = null) => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     type: MESSAGE_TYPES.ERROR,
     content: error,
     details,

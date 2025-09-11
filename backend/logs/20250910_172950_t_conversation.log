@@ -1,0 +1,90 @@
+
+================================================================================
+                        WORLDWEAVER CONVERSATION LOG
+================================================================================
+User: t
+Session Start: 2025-09-10 17:29:50
+Log File: 20250910_172950_t_conversation.log
+================================================================================
+
+
+--------------------------------------------------------------------------------
+--------------------------------- LLM REQUEST ----------------------------------
+--------------------------------------------------------------------------------
+
+[2025-09-10 17:30:15] LLM REQUEST RECEIVED
+Stage: 1
+USER MESSAGE:
+----------------------------------------
+can you help me?
+----------------------------------------
+
+DOCUMENT CONTEXT:
+----------------------------------------
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph"
+    }
+  ]
+}
+----------------------------------------
+
+CHAT HISTORY:
+----------------------------------------
+[
+  {
+    "id": "cf3b045a-e216-4272-ac43-7d9736c725d2",
+    "type": "assistant",
+    "content": "**Welcome to the start of your novel-planning journey!** Before we jump in, here\u2019s how this app works: you\u2019ll be chatting with me, and together we\u2019ll work through your story step by step. Each stage has a clear goal. As you share your thoughts, I\u2019ll guide you, ask questions, and help you shape your ideas. Once we both decide you\u2019ve met the goal for a stage, your answer will be added directly into your interactive planning document. This way, by the time we finish, you\u2019ll have a complete plan you can use to write your novel \u2014 or even feed to an AI to draft your story without it making things up.\n\nThis first stage is about your Big Idea. Every story starts with a spark \u2014 the one thing that makes you want to tell this tale. Don\u2019t worry about details yet; this is just about capturing the essence of what excites you. Maybe it\u2019s \u201ca hidden heir must claim their throne\u201d or \u201ca wandering mage searches for lost gods.\u201d It can be as short as a sentence or two.\n\nThe goal here is simple: write down your story\u2019s core concept in a way that gets you excited. Everything else \u2014 your characters, your world, your plot \u2014 will grow from this seed. By the end of this stage, you\u2019ll have the foundation that guides the rest of your planning.",
+    "timestamp": 1757550590997
+  }
+]
+----------------------------------------
+
+*************************** 
+ATTEMPTING LLM CALL... 
+******************************* 
+PROCESSOR INVOKING GEMINI WITH PROMPT 'TUTORIAL:LATEST' FOR STAGE 1 
+*****
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+[2025-09-10 17:30:24] ERROR OCCURRED: PROCESSOR_AGENT_ERROR
+Error Message: Agent invocation failed: Your default credentials were not found. To set up Application Default Credentials, see https://cloud.google.com/docs/authentication/external/set-up-adc for more information.
+
+ERROR CONTEXT:
+----------------------------------------
+{
+  "stage": 1,
+  "prompt_name": "tutorial:latest",
+  "model": "gemini",
+  "user_prompt": "can you help me?"
+}
+----------------------------------------
+
+
+--------------------------------------------------------------------------------
+--------------------------------- LLM RESPONSE ---------------------------------
+--------------------------------------------------------------------------------
+
+[2025-09-10 17:30:24] LLM RESPONSE PROCESSED (STRING_PARSED)
+Model: unknown
+Prompt Name: unknown
+Stage: 1
+
+RAW LLM OUTPUT:
+==================================================
+Agent invocation failed: Your default credentials were not found. To set up Application Default Credentials, see https://cloud.google.com/docs/authentication/external/set-up-adc for more information.
+==================================================
+
+PROCESSED JSON OUTPUT:
+==================================================
+{
+  "type": "message",
+  "text": "Agent invocation failed: Your default credentials were not found. To set up Application Default Credentials, see https://cloud.google.com/docs/authentication/external/set-up-adc for more information."
+}
+==================================================
+
