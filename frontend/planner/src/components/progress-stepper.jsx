@@ -41,18 +41,18 @@ export default function ProgressStepper({ isDisabled = false}) {
     };
 
     return (
-        <div className="w-1/2 mx-auto bg-white px-2 py-1">
+        <div className="w-1/2 mx-auto bg-[var(--color-background)] px-2 py-1">
             {/* Major Stages Progress Bar - Sliding Window */}
             <div className="flex items-center justify-center mb-1">
                 {/* Show dots for previous stages if not visible */}
                 {currentMajorStage > 1 && (
                     <>
                         <div className="flex items-center">
-                            <div className="w-1 h-1 rounded-full bg-green-500 mx-0.5"></div>
-                            <div className="w-0.5 h-0.5 rounded-full bg-gray-300 mx-0.5"></div>
-                            <div className="w-0.5 h-0.5 rounded-full bg-gray-300 mx-0.5"></div>
+                            <div className="w-1 h-1 rounded-full bg-[var(--color-success)] mx-0.5"></div>
+                            <div className="w-0.5 h-0.5 rounded-full bg-[var(--color-border)] mx-0.5"></div>
+                            <div className="w-0.5 h-0.5 rounded-full bg-[var(--color-border)] mx-0.5"></div>
                         </div>
-                        <div className="h-0.5 w-2 bg-green-500 mx-1"></div>
+                        <div className="h-0.5 w-2 bg-[var(--color-success)] mx-1"></div>
                     </>
                 )}
 
@@ -63,10 +63,10 @@ export default function ProgressStepper({ isDisabled = false}) {
                             <div className={`
                                 w-4 h-4 rounded-full flex items-center justify-center text-xs font-medium
                                 ${stage.id === currentMajorStage
-                                ? 'bg-[#7C3AED] text-white'
+                                ? 'bg-[var(--color-primary)] text-white'
                                 : stage.id < currentMajorStage
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-gray-200 text-gray-600'
+                                    ? 'bg-[var(--color-success)] text-white'
+                                    : 'bg-[var(--color-background-alt)] text-[var(--color-border-strong)]'
                             }
                             `}>
                                 {stage.id < currentMajorStage ? '✓' : stage.id}
@@ -74,8 +74,8 @@ export default function ProgressStepper({ isDisabled = false}) {
                             <span className={`
                                 ml-1 text-xs font-medium whitespace-nowrap
                                 ${stage.id === currentMajorStage
-                                ? 'text-[#7C3AED]'
-                                : 'text-[#1F2937]'
+                                ? 'text-[var(--color-primary)]'
+                                : 'text-[var(--color-text)]'
                             }
                             `}>
                                 {stage.name}
@@ -84,7 +84,7 @@ export default function ProgressStepper({ isDisabled = false}) {
                         {index < visibleStages.length - 1 && (
                             <div className={`
                                 flex-1 h-0.5 mx-1 min-w-[20px]
-                                ${stage.id < currentMajorStage ? 'bg-green-500' : 'bg-gray-200'}
+                                ${stage.id < currentMajorStage ? 'bg-[var(--color-success)]' : 'bg-[var(--color-background-alt)]'}
                             `} />
                         )}
                     </React.Fragment>
@@ -93,11 +93,11 @@ export default function ProgressStepper({ isDisabled = false}) {
                 {/* Show dots for future stages if not visible */}
                 {currentMajorStage + 2 < stageConfig.length && (
                     <>
-                        <div className="h-0.5 w-2 bg-gray-200 mx-1"></div>
+                        <div className="h-0.5 w-2 bg-[var(--color-background-alt)] mx-1"></div>
                         <div className="flex items-center">
-                            <div className="w-0.5 h-0.5 rounded-full bg-gray-300 mx-0.5"></div>
-                            <div className="w-0.5 h-0.5 rounded-full bg-gray-300 mx-0.5"></div>
-                            <div className="w-1 h-1 rounded-full bg-gray-200 mx-0.5"></div>
+                            <div className="w-0.5 h-0.5 rounded-full bg-[var(--color-border)] mx-0.5"></div>
+                            <div className="w-0.5 h-0.5 rounded-full bg-[var(--color-border)] mx-0.5"></div>
+                            <div className="w-1 h-1 rounded-full bg-[var(--color-background-alt)] mx-0.5"></div>
                         </div>
                     </>
                 )}
@@ -112,8 +112,8 @@ export default function ProgressStepper({ isDisabled = false}) {
                     className={`
                         w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold
                         ${effectiveCanGoPrevious
-                        ? 'text-[#7C3AED] hover:bg-purple-50 border border-[#7C3AED]'
-                        : 'text-gray-300 cursor-not-allowed border border-gray-200'
+                        ? 'text-[var(--color-primary)] hover:bg-[var(--color-secondary)]/20 border border-[var(--color-primary)]'
+                        : 'text-[var(--color-border)] cursor-not-allowed border border-[var(--color-border)]'
                     }
                     ${isDisabled ? 'opacity-50 cursor-wait' : ''}
                     `}
@@ -125,17 +125,17 @@ export default function ProgressStepper({ isDisabled = false}) {
                 {/* Current Sub-stage Info */}
                 <div className="flex-1 mx-2">
                     <div className="text-center mb-0.5">
-                        <span className="text-xs text-[#1F2937] font-medium">
+                        <span className="text-xs text-[var(--color-text)] font-medium">
                             {currentSubStageName}
                         </span>
-                        <span className="text-xs text-gray-500 ml-1">
+                        <span className="text-xs text-[var(--color-border-strong)] ml-1">
                             ({currentSubStage}/{totalSubStages})
                         </span>
                     </div>
                     {/* Progress bar for substages */}
-                    <div className="w-3/4 bg-gray-200 rounded-full h-1 mx-auto">
+                    <div className="w-3/4 bg-[var(--color-background-alt)] rounded-full h-1 mx-auto">
                         <div
-                            className="bg-[#7C3AED] h-1 rounded-full transition-all duration-300"
+                            className="bg-[var(--color-primary)] h-1 rounded-full transition-all duration-300"
                             style={{ width: `${currentStageProgress}%` }}
                         />
                     </div>
@@ -148,8 +148,8 @@ export default function ProgressStepper({ isDisabled = false}) {
                     className={`
                         w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold
                         ${effectiveCanGoNext
-                        ? 'text-[#7C3AED] hover:bg-purple-50 border border-[#7C3AED]'
-                        : 'text-gray-300 cursor-not-allowed border border-gray-200'
+                        ? 'text-[var(--color-primary)] hover:bg-[var(--color-secondary)]/20 border border-[var(--color-primary)]'
+                        : 'text-[var(--color-border)] cursor-not-allowed border border-[var(--color-border)]'
                     }
                     ${isDisabled ? 'opacity-50 cursor-wait' : ''}
                     `}

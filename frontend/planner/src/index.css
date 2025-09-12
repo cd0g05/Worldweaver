@@ -1,26 +1,72 @@
-/* Alternative simpler approach using just transitions */
 @import "tailwindcss";
 
+/* Custom CSS Variables */
+:root {
+  /* Brand colors */
+  --color-primary: #7C3AED;
+  --color-primary-600: #6D28D9;
+  --color-primary-700: #5B21B6;
+  --color-secondary: #93C5FD;
 
+  /* Background colors */
+  --color-background: #FFFFFF;
+  --color-background-alt: #E3E3E6;
 
+  /* Chat Background Colors */
+  --color-ai-background: #f9fafb;
+  --color-human-background: #93C5FD;
+
+  /* Text colors */
+  --color-text: #1F2937;
+  --color-text-alt: #4C1D95;
+
+  /* Semantic colors */
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+
+  /* Border colors */
+  --color-border: #D1D5DB;
+  --color-border-strong: #9CA3AF;
+}
+
+/* Dark mode overrides */
+/*@media (prefers-color-scheme: dark) {*/
+/*  :root {*/
+/*    --color-background: #0B0B10;*/
+/*    --color-background-alt: #111827;*/
+/*    --color-text: #E5E7EB;*/
+/*    --color-text-alt: #E9D5FF;*/
+/*    --color-border: #374151;*/
+/*    --color-border-strong: #4B5563;*/
+/*  }*/
+/*}*/
+
+/* Keyframes for animations */
 @keyframes glow-pulse {
-    0% {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3);
-    }
-    100% {
-        box-shadow: 0 0 30px rgba(147, 51, 234, 0.8), 0 0 60px rgba(147, 51, 234, 0.4);
-    }
+  0% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.8), 0 0 60px rgba(124, 58, 237, 0.4);
+  }
 }
 
-@theme {
-    --animate-glow-pulse: glow-pulse 2s ease-in-out infinite alternate;
+/* Custom utility classes */
+.banner-gradient {
+  background: linear-gradient(to right, var(--color-secondary), color-mix(in srgb, var(--color-secondary) 50%, transparent), var(--color-secondary));
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
-/* Custom utility for smooth glow transitions */
 .glow-transition {
-    transition: box-shadow 0.6s ease-out;
+  transition: box-shadow 0.6s ease-out;
 }
 
 .glow-static {
-    box-shadow: 0 0 25px rgba(101, 80, 210, 0.7), 0 0 50px rgba(101, 80, 210, 0.35);
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.7), 0 0 50px rgba(124, 58, 237, 0.35);
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite alternate;
 }

@@ -64,7 +64,7 @@ const ChatInput = ({ onSendMessage, isLoading = false }) => {
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
-              className="w-full border bg-white border-gray-300 rounded-4xl px-4 py-3 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[50px] max-h-[200px] overflow-y-auto transition-all duration-200"
+              className="w-full border bg-[var(--color-background)] border-[var(--color-border)] rounded-4xl px-4 py-3 pr-16 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent min-h-[50px] max-h-[200px] overflow-y-auto transition-all duration-200"
               disabled={isLoading}
               rows="1"
           />
@@ -73,7 +73,7 @@ const ChatInput = ({ onSendMessage, isLoading = false }) => {
                     <button
                         onClick={handleSend}
                         disabled={isLoading || !inputValue.trim()}
-                        className="absolute right-2 bottom-3 bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
+                        className="absolute right-2 bottom-3 bg-[var(--color-primary-600)] text-white px-4 py-2 rounded-full hover:bg-[var(--color-primary-700)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
                     >
                         {isLoading ? (
                             <div className="flex items-center space-x-2">

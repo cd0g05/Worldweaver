@@ -120,7 +120,7 @@ class GoogleVertexAIAgent(Agent):
     """
     def __init__(self, prompt_name: str, project_id: str, location: str, model: str, flag: int):
         if flag == 1:
-            system_prompt = self._load_system_prompt(prompt_name, Path("/Users/cartercripe/dev/code/projects/worldweaver/backend/config/prompts"))
+            system_prompt = self._load_system_prompt(prompt_name, Path("backend/config/prompts"))
         else:
             system_prompt = prompt_name
         super().__init__(system_prompt)

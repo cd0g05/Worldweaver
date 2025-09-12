@@ -59,7 +59,7 @@ const DocEditor = forwardRef((props, ref) => {
     return (
         <div
             onClick={focusEditor}
-            className={`transition-all duration-300 h-[calc(100vh-85px)] overflow-auto rounded-2xl shadow-lg px-4 pt-2 bg-white cursor-text ${getAnimationClass()}`}
+            className={`transition-all duration-300 h-[calc(100vh-85px)] overflow-auto rounded-2xl shadow-lg px-4 pt-2 bg-[var(--color-background)] cursor-text ${getAnimationClass()}`}
         >
             {editor ? (
                 <EditorContent editor={editor} className="prose max-w-none focus:outline-none m-2" />

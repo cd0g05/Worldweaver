@@ -1,0 +1,90 @@
+
+================================================================================
+                        WORLDWEAVER CONVERSATION LOG
+================================================================================
+User: t
+Session Start: 2025-09-12 14:51:54
+Log File: 20250912_145154_t_conversation.log
+================================================================================
+
+
+--------------------------------------------------------------------------------
+--------------------------------- LLM REQUEST ----------------------------------
+--------------------------------------------------------------------------------
+
+[2025-09-12 14:52:06] LLM REQUEST RECEIVED
+Stage: 1
+USER MESSAGE:
+----------------------------------------
+can you give some suggestions?
+----------------------------------------
+
+DOCUMENT CONTEXT:
+----------------------------------------
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph"
+    }
+  ]
+}
+----------------------------------------
+
+CHAT HISTORY:
+----------------------------------------
+[
+  {
+    "id": "ce4a15f4-e3ba-41ec-8be6-2a88461785b8",
+    "type": "assistant",
+    "content": "**Welcome to the start of your novel-planning journey!** Before we jump in, here\u2019s how this app works: you\u2019ll be chatting with me, and together we\u2019ll work through your story step by step. Each stage has a clear goal. As you share your thoughts, I\u2019ll guide you, ask questions, and help you shape your ideas. Once we both decide you\u2019ve met the goal for a stage, your answer will be added directly into your interactive planning document. This way, by the time we finish, you\u2019ll have a complete plan you can use to write your novel \u2014 or even feed to an AI to draft your story without it making things up.\n\nThis first stage is about your Big Idea. Every story starts with a spark \u2014 the one thing that makes you want to tell this tale. Don\u2019t worry about details yet; this is just about capturing the essence of what excites you. Maybe it\u2019s \u201ca hidden heir must claim their throne\u201d or \u201ca wandering mage searches for lost gods.\u201d It can be as short as a sentence or two.\n\nThe goal here is simple: write down your story\u2019s core concept in a way that gets you excited. Everything else \u2014 your characters, your world, your plot \u2014 will grow from this seed. By the end of this stage, you\u2019ll have the foundation that guides the rest of your planning.",
+    "timestamp": 1757713914911
+  }
+]
+----------------------------------------
+
+*************************** 
+ATTEMPTING LLM CALL... 
+******************************* 
+PROCESSOR INVOKING GEMINI WITH PROMPT 'TUTORIAL:LATEST' FOR STAGE 1 
+*************** 
+PROCESSOR RECEIVED RESPONSE FROM GEMINI (809 CHARACTERS) 
+**********
+--------------------------------------------------------------------------------
+--------------------------------- LLM RESPONSE ---------------------------------
+--------------------------------------------------------------------------------
+
+[2025-09-12 14:52:13] LLM RESPONSE PROCESSED (STRING_PARSED)
+Model: gemini
+Prompt Name: tutorial:latest
+Stage: 1
+
+RAW LLM OUTPUT:
+==================================================
+Hi there! 👋
+
+I'd love to give you some suggestions! To do that effectively, I need a little more information. What kind of suggestions are you looking for?
+
+For example, are you looking for suggestions on:
+
+*   **Things to do?** (e.g., hobbies, activities, places to visit)
+*   **Learning something new?** (e.g., skills, topics, languages)
+*   **Improving something?** (e.g., productivity, health, relationships)
+*   **Creative ideas?** (e.g., writing prompts, art projects, business ideas)
+*   **Entertainment?** (e.g., movies, books, music, games)
+*   **Problem-solving?** (e.g., advice on a specific situation)
+*   **Something else entirely?**
+
+**The more specific you can be, the better I can tailor my suggestions to you!**
+
+So, tell me, what's on your mind? What are you hoping to get suggestions for? 😊
+==================================================
+
+PROCESSED JSON OUTPUT:
+==================================================
+{
+  "type": "message",
+  "text": "Hi there! \ud83d\udc4b\n\nI'd love to give you some suggestions! To do that effectively, I need a little more information. What kind of suggestions are you looking for?\n\nFor example, are you looking for suggestions on:\n\n*   **Things to do?** (e.g., hobbies, activities, places to visit)\n*   **Learning something new?** (e.g., skills, topics, languages)\n*   **Improving something?** (e.g., productivity, health, relationships)\n*   **Creative ideas?** (e.g., writing prompts, art projects, business ideas)\n*   **Entertainment?** (e.g., movies, books, music, games)\n*   **Problem-solving?** (e.g., advice on a specific situation)\n*   **Something else entirely?**\n\n**The more specific you can be, the better I can tailor my suggestions to you!**\n\nSo, tell me, what's on your mind? What are you hoping to get suggestions for? \ud83d\ude0a"
+}
+==================================================
+

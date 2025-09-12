@@ -15,10 +15,10 @@ const MessageList = ({ messages = [] }) => {
             {/* Empty state when no messages */}
             {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full min-h-[430px]">
-                    <div className="text-center text-gray-500">
+                    <div className="text-center text-[var(--color-border-strong)]">
                         <div className="text-4xl mb-4">💬</div>
-                        <h3 className="text-lg font-medium mb-2">Start a conversation</h3>
-                        <p className="text-sm">Send a message to begin chatting with the AI assistant</p>
+                        <h3 className="text-lg font-medium mb-2 text-[var(--color-text)]">Start a conversation</h3>
+                        <p className="text-sm text-[var(--color-border-strong)]">Send a message to begin chatting with the AI assistant</p>
                     </div>
                 </div>
             ) : (

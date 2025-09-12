@@ -108,10 +108,10 @@ const MessageItem = ({ message }) => {
         delete filteredParams.timestamp;
 
         return (
-            <div className="mt-3 p-3 bg-white bg-opacity-50 rounded-lg">
+            <div className="mt-3 p-3 bg-[var(--color-background)] bg-opacity-50 rounded-lg">
                 <button
                     onClick={() => setShowDetails(!showDetails)}
-                    className="text-xs text-purple-600 hover:text-purple-800 font-medium mb-2 flex items-center space-x-1"
+                    className="text-xs text-[var(--color-primary)] hover:text-[var(--color-primary-700)] font-medium mb-2 flex items-center space-x-1"
                 >
                     <span>{showDetails ? '▼' : '▶'}</span>
                     <span>Parameters</span>
@@ -121,10 +121,10 @@ const MessageItem = ({ message }) => {
                     <div className="space-y-1">
                         {Object.entries(filteredParams).map(([key, value]) => (
                             <div key={key} className="flex text-xs">
-                <span className="font-medium text-gray-600 w-20 capitalize">
+                <span className="font-medium text-[var(--color-border-strong)] w-20 capitalize">
                   {key}:
                 </span>
-                                <span className="text-gray-800 flex-1 break-words">
+                                <span className="text-[var(--color-text)] flex-1 break-words">
                   {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                 </span>
                             </div>
@@ -141,11 +141,11 @@ const MessageItem = ({ message }) => {
             case MESSAGE_TYPES.TOOL:
                 return (
                     <div>
-                        <p className="text-sm text-gray-700 mb-2">
+                        <p className="text-sm text-[var(--color-text)] mb-2">
                             {message.description || `Executed ${message.tool} command`}
                         </p>
                         {message.tool && (
-                            <div className="inline-block bg-white bg-opacity-70 px-2 py-1 rounded text-xs font-mono text-purple-700">
+                            <div className="inline-block bg-[var(--color-background)] bg-opacity-70 px-2 py-1 rounded text-xs font-mono text-[var(--color-primary)]">
                                 <ReactMarkdown>{message.tool}</ReactMarkdown>
                             </div>
                         )}
@@ -156,11 +156,11 @@ const MessageItem = ({ message }) => {
             case MESSAGE_TYPES.ERROR:
                 return (
                     <div>
-                        <p className="text-sm text-red-700 font-medium">
+                        <p className="text-sm text-[var(--color-error)] font-medium">
                             <ReactMarkdown>{message.content || message.error || 'An error occurred'}</ReactMarkdown>
                         </p>
                         {message.details && (
-                            <p className="text-xs text-red-600 mt-1 opacity-80">
+                            <p className="text-xs text-[var(--color-error)] mt-1 opacity-80">
                                 {message.details}
                             </p>
                         )}
@@ -169,7 +169,7 @@ const MessageItem = ({ message }) => {
 
             default:
                 return (
-                    <p className="text-sm whitespace-pre-wrap text-gray-800 leading-relaxed">
+                    <p className="text-sm whitespace-pre-wrap text-[var(--color-text)] leading-relaxed">
                         <ReactMarkdown>{message.content}</ReactMarkdown>
                     </p>
                 );
@@ -188,7 +188,7 @@ const MessageItem = ({ message }) => {
             {getDisplayName()}
           </span>
                 </div>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-[var(--color-border-strong)]">
           {formatTime(message.timestamp)}
         </span>
             </div>
@@ -201,10 +201,10 @@ const MessageItem = ({ message }) => {
             {/* Debug info for development */}
             {process.env.NODE_ENV === 'development' && (
                 <details className="mt-3">
-                    <summary className="text-xs text-gray-400 cursor-pointer">
+                    <summary className="text-xs text-[var(--color-border)] cursor-pointer">
                         Debug Info
                     </summary>
-                    <pre className="text-xs bg-gray-100 p-2 mt-1 rounded overflow-x-auto">
+                    <pre className="text-xs bg-[var(--color-background-alt)] p-2 mt-1 rounded overflow-x-auto">
             {JSON.stringify(message, null, 2)}
           </pre>
                 </details>
