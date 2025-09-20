@@ -1,13 +1,12 @@
-version: '3.8'
-
 services:
   worldweaver:
     build: .
     ports:
-      - "5000:5000"
+      - "5002:5002"
     environment:
       - FLASK_ENV=development
       - DEV_MODE=0
+      - PORT=5002
     volumes:
       # Mount the database file so data persists
       - ./mydb.sqlite:/app/mydb.sqlite
