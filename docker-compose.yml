@@ -1,16 +1,43 @@
 services:
   worldweaver:
     build: .
-    ports:
-      - "5002:5002"
     environment:
       - FLASK_ENV=development
       - DEV_MODE=0
       - PORT=5002
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=utf-8
+      - LOGGING_DIR=/app/backend/logs
     volumes:
       # Mount the database file so data persists
       - ./mydb.sqlite:/app/mydb.sqlite
+      # Mount static files for nginx
+      - static_files:/app/frontend/static
+      # Mount logs directory so logs persist and are accessible from host
+      - ./logs:/app/backend/logs:rw
     restart: unless-stopped
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_files:/app/frontend/static:ro
+    depends_on:
+      - worldweaver
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  static_files:
+
+networks:
+  app-network:
+    driver: bridge
 
   # Optional: Add a separate database service if you want to use PostgreSQL instead of SQLite
   # postgres:

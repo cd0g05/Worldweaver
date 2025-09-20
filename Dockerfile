@@ -26,22 +26,33 @@ COPY . .
 # Build the React frontend
 RUN cd frontend/planner && npm run build
 
-# Create necessary directories and files
+# Create necessary directories
 RUN mkdir -p /app/backend/scripts && \
     mkdir -p /app/frontend/templates && \
-    mkdir -p /app/frontend/static
+    mkdir -p /app/frontend/static && \
+    mkdir -p /app/backend/logs
+
+# Ensure React build files are in the right place for nginx
+RUN if [ -d "/app/frontend/static/planning-dist" ]; then \
+        echo "React build files found in planning-dist"; \
+    else \
+        echo "Warning: React build files not found in expected location"; \
+        ls -la /app/frontend/static/ || echo "static directory not found"; \
+    fi
 
 # Set environment variables
 ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
 ENV PYTHONPATH=/app
 ENV DEV_MODE=0
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
 
 # Expose port from environment variable (Railway sets this)
 EXPOSE ${PORT:-5000}
 
 # Add health check using PORT environment variable
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=300s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:${PORT:-5000}/health || exit 1
 
 # Run the application with error output
