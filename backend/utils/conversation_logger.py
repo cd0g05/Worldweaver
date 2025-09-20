@@ -28,7 +28,19 @@ class ConversationLogger:
             log_dir = project_root / "backend" / "logs"
         
         self.log_dir = Path(log_dir)
-        self.log_dir.mkdir(exist_ok=True)
+        try:
+            self.log_dir.mkdir(exist_ok=True)
+            # Test write permissions
+            test_file = self.log_dir / "test_write.tmp"
+            test_file.touch()
+            test_file.unlink()
+        except (PermissionError, OSError) as e:
+            print(f"Warning: Cannot write to log directory {self.log_dir}: {e}")
+            # Fall back to a temp directory
+            import tempfile
+            self.log_dir = Path(tempfile.gettempdir()) / "worldweaver_logs"
+            self.log_dir.mkdir(exist_ok=True)
+            print(f"Using fallback log directory: {self.log_dir}")
         self.current_log_file = None
         self.session_start_time = None
         

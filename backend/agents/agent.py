@@ -1,5 +1,8 @@
 import logging
+import json
 import os
+from google.oauth2 import service_account
+from vertexai import init
 from abc import ABCMeta, abstractmethod
 import dotenv
 from pathlib import Path
@@ -126,8 +129,16 @@ class GoogleVertexAIAgent(Agent):
         super().__init__(system_prompt)
         if not VERTEX_AI_AVAILABLE:
             raise ImportError("google-cloud-aiplatform package is required for Google Vertex AI support")
-
-        vertexai.init(project=project_id, location=location)
+        print("attempting to load Google Vertex AI")
+        credentials_json = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+        if credentials_json:
+            print("successfully loading Google Vertex AI credentials")
+            credentials_info = json.loads(credentials_json)
+            credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            # Initialize Vertex AI with explicit credentials
+            init(project=project_id, credentials=credentials, location=location)
+        else:
+            print("failed to load Google Vertex AI credentials")
         self.client = GenerativeModel(model)
         self._model = model
 
