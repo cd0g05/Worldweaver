@@ -37,12 +37,12 @@ ENV FLASK_ENV=production
 ENV PYTHONPATH=/app
 ENV DEV_MODE=0
 
-# Expose port 5000 (default for Railway)
-EXPOSE 5000
+# Expose port from environment variable (Railway sets this)
+EXPOSE ${PORT:-5000}
 
-# Add health check
+# Add health check using PORT environment variable
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
+    CMD curl -f http://localhost:${PORT:-5000}/health || exit 1
 
 # Run the application with error output
 CMD ["python", "-u", "main.py"]
