@@ -8,6 +8,7 @@ import dotenv
 from pathlib import Path
 import toml
 from typing import Optional
+from backend.utils.logging_config import get_module_logger
 # from google.cloud import aiplatform
 
 # from anthropic import Anthropic, APIStatusError, APIConnectionError
@@ -23,7 +24,7 @@ except ImportError:
 
 # from src.media_lens.common import LOGGER_NAME, AI_PROVIDER, ANTHROPIC_MODEL, VERTEX_AI_PROJECT_ID, VERTEX_AI_LOCATION, VERTEX_AI_MODEL
 
-logger = logging.getLogger("Hi")
+logger = get_module_logger('agent')
 
 class Agent(metaclass=ABCMeta):
     """
@@ -129,16 +130,16 @@ class GoogleVertexAIAgent(Agent):
         super().__init__(system_prompt)
         if not VERTEX_AI_AVAILABLE:
             raise ImportError("google-cloud-aiplatform package is required for Google Vertex AI support")
-        print("attempting to load Google Vertex AI")
+        logger.info("attempting to load Google Vertex AI")
         credentials_json = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
         if credentials_json:
-            print("successfully loading Google Vertex AI credentials")
+            logger.info("successfully loading Google Vertex AI credentials")
             credentials_info = json.loads(credentials_json)
             credentials = service_account.Credentials.from_service_account_info(credentials_info)
             # Initialize Vertex AI with explicit credentials
             init(project=project_id, credentials=credentials, location=location)
         else:
-            print("failed to load Google Vertex AI credentials")
+            logger.warning("failed to load Google Vertex AI credentials")
         self.client = GenerativeModel(model)
         self._model = model
 
@@ -173,4 +174,4 @@ class GoogleVertexAIAgent(Agent):
 if __name__ == "__main__":
     dotenv.load_dotenv()
     agent:Agent = Agent.get_agent("gemini", "tutorial1:1")
-    print(agent.invoke("Who are you?"))
+    logger.info(agent.invoke("Who are you?"))

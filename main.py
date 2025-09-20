@@ -1,10 +1,22 @@
 from backend.scripts.routes import app
 from backend.scripts.dbmodels import SessionLocal, User
+from backend.utils.logging_config import get_logger
 import argparse
+import os
+import sys
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Get logger for main application (this also initializes the logging system)
+logger = get_logger('main')
+
+# Log startup environment info
+logger.info("=== WorldWeaver Application Starting ===")
+logger.info(f"Environment variables: DEV_MODE={os.environ.get('DEV_MODE', 'not set')}, DEPLOYED={os.environ.get('DEPLOYED', 'not set')}")
+logger.info(f"Python version: {sys.version}")
+logger.info(f"Working directory: {os.getcwd()}")
 
 def create_test_user():
     session = SessionLocal()
@@ -19,15 +31,15 @@ def create_test_user():
         )
         session.add(test_user)
         session.commit()
-        print("Test user created: test@example.com / password123")
+        logger.info("Test user created: t@t.t / pwd")
     else:
-        print(" * Test user already exists")
+        logger.info("Test user already exists")
 
     session.close()
 
 if __name__ == "__main__":
     try:
-        print("Starting WorldWeaver application...")
+        logger.info("Starting WorldWeaver application...")
         create_test_user()
         
         parser = argparse.ArgumentParser()
@@ -36,16 +48,16 @@ if __name__ == "__main__":
 
         # put the stub flag into Flask's config
         app.config["STUB"] = args.stub
-        print(f" * Stub mode: {args.stub}")
+        logger.info(f"Stub mode: {args.stub}")
 
         import os
         port = int(os.environ.get("PORT", 5002))
-        print(f" * Starting server on 0.0.0.0:{port}")
-        print(f" * DEV_MODE: {os.environ.get('DEV_MODE', 'not set')}")
+        logger.info(f"Starting server on 0.0.0.0:{port}")
+        logger.info(f"DEV_MODE: {os.environ.get('DEV_MODE', 'not set')}")
         
         app.run(host="0.0.0.0", port=port, debug=False)
     except Exception as e:
-        print(f"ERROR: Failed to start application: {e}")
+        logger.error(f"Failed to start application: {e}")
         import traceback
         traceback.print_exc()
         exit(1)

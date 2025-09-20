@@ -9,40 +9,60 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
+from .logging_config import get_module_logger
 
 
 class ConversationLogger:
     """
     Handles logging of user conversations with detailed formatting and structure.
+    Uses Python logger that writes to files in LOGGING_DIR locally and stdout in production.
     """
     
     def __init__(self, log_dir: str = None):
         """Initialize the conversation logger.
         
         Args:
-            log_dir: Directory to store log files. Defaults to backend/logs
+            log_dir: Directory to store log files. Uses LOGGING_DIR env var or falls back to backend/logs
         """
-        if log_dir is None:
-            # Get project root and create logs directory path
-            project_root = Path(__file__).resolve().parents[2]
-            log_dir = project_root / "backend" / "logs"
+        # Get dedicated logger for conversations
+        self.logger = get_module_logger('conversation')
         
-        self.log_dir = Path(log_dir)
-        try:
-            self.log_dir.mkdir(exist_ok=True)
-            # Test write permissions
-            test_file = self.log_dir / "test_write.tmp"
-            test_file.touch()
-            test_file.unlink()
-        except (PermissionError, OSError) as e:
-            print(f"Warning: Cannot write to log directory {self.log_dir}: {e}")
-            # Fall back to a temp directory
-            import tempfile
-            self.log_dir = Path(tempfile.gettempdir()) / "worldweaver_logs"
-            self.log_dir.mkdir(exist_ok=True)
-            print(f"Using fallback log directory: {self.log_dir}")
-        self.current_log_file = None
+        # Check if running in deployed environment
+        self.is_deployed = os.getenv('DEPLOYED', '0') == '1'
+        
+        if not self.is_deployed:
+            # When running locally, also maintain detailed file logging
+            if log_dir is None:
+                # Use LOGGING_DIR env var first, then fall back
+                log_dir = os.getenv('LOGGING_DIR')
+                if not log_dir:
+                    project_root = Path(__file__).resolve().parents[2]
+                    log_dir = project_root / "backend" / "logs"
+            
+            self.log_dir = Path(log_dir)
+            try:
+                self.log_dir.mkdir(parents=True, exist_ok=True)
+                # Test write permissions
+                test_file = self.log_dir / "test_write.tmp"
+                test_file.touch()
+                test_file.unlink()
+            except (PermissionError, OSError) as e:
+                self.logger.warning(f"Cannot write to log directory {self.log_dir}: {e}")
+                # Fall back to a temp directory
+                import tempfile
+                self.log_dir = Path(tempfile.gettempdir()) / "worldweaver_logs"
+                self.log_dir.mkdir(exist_ok=True)
+                self.logger.info(f"Using fallback log directory: {self.log_dir}")
+            self.current_log_file = None
+        else:
+            self.log_dir = None
+            self.current_log_file = None
+        
         self.session_start_time = None
+    
+    def _log_conversation_event(self, level: str, message: str):
+        """Helper method for logging conversation events."""
+        getattr(self.logger, level.lower())(message)
         
     def start_new_conversation(self, username: str) -> str:
         """
@@ -52,19 +72,26 @@ class ConversationLogger:
             username: The username of the current user
             
         Returns:
-            The path to the created log file
+            The path to the created log file (or empty string when deployed)
         """
-        print("creating logging file...")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{timestamp}_{username}_conversation.log"
-        self.current_log_file = self.log_dir / filename
         self.session_start_time = datetime.now()
         
-        # Create the log file with header
-        with open(self.current_log_file, 'w', encoding='utf-8') as f:
-            f.write(self._get_session_header(username))
+        self._log_conversation_event('info', f"Starting new conversation for user: {username}")
         
-        return str(self.current_log_file)
+        if not self.is_deployed:
+            # Create detailed conversation log file for local environment
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{timestamp}_{username}_conversation.log"
+            self.current_log_file = self.log_dir / filename
+            
+            # Create the log file with header
+            with open(self.current_log_file, 'w', encoding='utf-8') as f:
+                f.write(self._get_session_header(username))
+            
+            self._log_conversation_event('info', f"Created conversation log file: {self.current_log_file}")
+            return str(self.current_log_file)
+        else:
+            return ""
     
     def _get_session_header(self, username: str) -> str:
         """Generate the session header for log files."""
@@ -113,6 +140,12 @@ Log File: {self.current_log_file.name}
             document_context: Current document content
             frontend_stage: Frontend reported stage
         """
+        # Log to Python logger
+        self._log_conversation_event('info', f"LLM REQUEST - Stage {frontend_stage}: {user_message[:100]}...")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
             
@@ -161,6 +194,14 @@ Log File: {self.current_log_file.name}
             processing_type: Type of processing ('success', 'json_parse', 'string_parse', 'error')
             metadata: Additional metadata (prompt_name, model, stage, etc.)
         """
+        # Log to Python logger
+        model = metadata.get('model', 'unknown') if metadata else 'unknown'
+        stage = metadata.get('stage', 'unknown') if metadata else 'unknown'
+        self._log_conversation_event('info', f"LLM RESPONSE - {model} Stage {stage} ({processing_type}): {len(raw_output)} chars")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
             
@@ -198,6 +239,12 @@ Log File: {self.current_log_file.name}
             chat_context: Chat context provided
             document_context: Document context provided
         """
+        # Log to Python logger
+        self._log_conversation_event('info', f"TUTORIAL REQUEST - Stage {stage}")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
             
@@ -238,6 +285,13 @@ Log File: {self.current_log_file.name}
             processed_output: Final JSON response
             metadata: Additional metadata (prompt_name, model, stage, etc.)
         """
+        # Log to Python logger
+        stage = metadata.get('stage', 'unknown') if metadata else 'unknown'
+        self._log_conversation_event('info', f"TUTORIAL RESPONSE - Stage {stage}: {len(raw_output)} chars")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
             
@@ -275,6 +329,12 @@ Log File: {self.current_log_file.name}
             error_message: The error message
             context: Additional context about the error
         """
+        # Log to Python logger
+        self._log_conversation_event('error', f"ERROR - {error_type}: {error_message}")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
             
@@ -293,6 +353,14 @@ Log File: {self.current_log_file.name}
     
     def log_session_end(self):
         """Log the end of a conversation session."""
+        # Log to Python logger
+        duration = datetime.now() - self.session_start_time if self.session_start_time else None
+        duration_str = str(duration) if duration else "unknown"
+        self._log_conversation_event('info', f"SESSION END - Duration: {duration_str}")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
             
@@ -310,6 +378,12 @@ Log File: {self.current_log_file.name}
             f.write("\n" + "=" * 80 + "\n")
 
     def log_message(self, message: str):
+        # Log to Python logger
+        self._log_conversation_event('info', f"MESSAGE: {message}")
+        
+        if self.is_deployed:
+            return
+            
         if not self.current_log_file:
             return
         char = "*"

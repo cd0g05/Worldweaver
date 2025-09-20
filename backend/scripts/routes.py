@@ -10,11 +10,15 @@ from backend.scripts.prompts import PromptBuilder
 import json
 from backend.agents.current_agent import CurrentAgent
 from backend.utils.conversation_logger import conversation_logger
+from backend.utils.logging_config import get_logger
 from pathlib import Path
 
 PROJ = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = PROJ / "frontend" / "templates"
 STATIC_DIR = PROJ / "frontend" / "static"
+
+# Get logger for routes
+logger = get_logger('routes')
 
 app = Flask(
     __name__,
@@ -55,7 +59,7 @@ def start_new_conversation_session():
             'log_file': log_file,
             'start_time': datetime.now().isoformat()
         }
-        print(f"Started new conversation session for {username}: {log_file}")
+        logger.info(f"Started new conversation session for {username}: {log_file}")
         
         return session[session_key]
     return None
@@ -77,7 +81,7 @@ def ensure_conversation_session():
                 'log_file': log_file,
                 'start_time': datetime.now().isoformat()
             }
-            print(f"Created fallback conversation session for {username}: {log_file}")
+            logger.info(f"Created fallback conversation session for {username}: {log_file}")
         
         return session[session_key]
     return None
@@ -180,7 +184,7 @@ def planning():
     #     return redirect("http://localhost:5173")
     if request.method == "POST":
         user_text = request.form.get("text")
-        print(f"The user's text: {user_text}")
+        logger.debug(f"The user's text: {user_text}")
     return render_template("pages/planning.html", css_file=css_file, js_file=js_file)
 
 @app.route("/test", methods=["GET", "POST"])
@@ -190,7 +194,7 @@ def test():
         user_text = data.get('text', '')
         timestamp = data.get('timestamp', '')
 
-        print(f"The user's text (/test version): {user_text}, at timestamp: {timestamp}")
+        logger.debug(f"The user's text (/test version): {user_text}, at timestamp: {timestamp}")
         return jsonify({
             'status': 'success',
             'received_text': user_text,
@@ -203,7 +207,7 @@ def set_agent():
     if request.method == "POST":
         new_agent = request.form.get("agent")
         agent.set_agent(int(new_agent))
-        print(f"New agent set to {agent.get_agent()}")
+        logger.info(f"New agent set to {agent.get_agent()}")
         return redirect(request.referrer or '/pages/dashboard.html')
 
 @app.route('/advance_agent', methods=["GET", "POST"])
@@ -211,7 +215,7 @@ def set_agent():
 def advance_agent():
     if request.method == "POST":
         agent.advance_agent()
-        print(f"New agent set to {agent.get_agent()}")
+        logger.info(f"New agent set to {agent.get_agent()}")
         return redirect(request.referrer or '/pages/dashboard.html')
 
 @app.route('/back_agent', methods=["GET", "POST"])
@@ -219,7 +223,7 @@ def advance_agent():
 def back_agent():
     if request.method == "POST":
         agent.back_agent()
-        print(f"New agent set to {agent.get_agent()}")
+        logger.info(f"New agent set to {agent.get_agent()}")
         return redirect(request.referrer or '/pages/dashboard.html')
 
 
@@ -237,7 +241,7 @@ def partial_llm():
 def prune():
     if request.method == "POST":
         data = request.get_json()
-        print(f"Pruning: {data}")
+        logger.debug(f"Pruning: {data}")
         json_output = {
             "type": "context",
             "text": "A pruned context..."
@@ -410,7 +414,7 @@ def llm():
                             processing_type="string_parsed",
                             metadata=metadata
                         )
-                        print(f"Recieved: {json_output_str}")
+                        logger.debug(f"Received: {json_output_str}")
                         return json_output_str
                     except json.JSONDecodeError as parse_error:
                         # Fallback to basic message format

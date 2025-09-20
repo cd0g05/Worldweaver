@@ -5,11 +5,15 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from pathlib import Path
 from backend.agents.agent import Agent
+from backend.utils.logging_config import get_module_logger
 import toml
 load_dotenv()
 import os
 api_key = os.getenv("OPENAI_API_KEY")
 # client = OpenAI()
+
+# Get logger for llm module
+logger = get_module_logger('llm')
 
 
 class call_ai:
@@ -252,4 +256,4 @@ if __name__ == "__main__":
     ai = call_ai()
     text = "What are your opinions on the mining of rare resources?"
     response = ai.get_response("Respond like Director Krennic from star wars", text)
-    print(response)
+    logger.info(response)
