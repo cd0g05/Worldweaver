@@ -6,11 +6,11 @@ import { useStage, useStageEvents, STAGE_EVENTS } from '../StageContext.jsx';
 
 const ChatPanel = ({ editorRef, onLoadingChange }) => {
     // This is the shared state that both components will use
-    const [messages, setMessages] = useState([createAssistantMessage("**Welcome to the start of your novel-planning journey!** Before we jump in, here’s how this app works: you’ll be chatting with me, and together we’ll work through your story step by step. Each stage has a clear goal. As you share your thoughts, I’ll guide you, ask questions, and help you shape your ideas. Once we both decide you’ve met the goal for a stage, your answer will be added directly into your interactive planning document. This way, by the time we finish, you’ll have a complete plan you can use to write your novel — or even feed to an AI to draft your story without it making things up.\n" +
-    "\n" +
-    "This first stage is about your Big Idea. Every story starts with a spark — the one thing that makes you want to tell this tale. Don’t worry about details yet; this is just about capturing the essence of what excites you. Maybe it’s “a hidden heir must claim their throne” or “a wandering mage searches for lost gods.” It can be as short as a sentence or two.\n" +
-    "\n" +
-    "The goal here is simple: write down your story’s core concept in a way that gets you excited. Everything else — your characters, your world, your plot — will grow from this seed. By the end of this stage, you’ll have the foundation that guides the rest of your planning.")]);
+    const [messages, setMessages] = useState([createAssistantMessage("**Welcome to Worldweaver!**\n" +
+    "This app is designed to help you plan and develop your fantasy story through a guided, step-by-step process. Whether you're a first-time writer or an experienced author, Worldweaver will walk you through everything from your initial big idea all the way to detailed plot planning.\n" +
+    "Here's how it works: You'll move through different stages, each focusing on a specific aspect of your story (like your main concept, worldbuilding, characters, and plot). In each stage, you'll have a conversation with an AI assistant that will help you brainstorm, refine your ideas, and organize your thoughts. At the end of each stage, your progress will be automatically added to your planning document.\n" +
+    "The best part? This is completely flexible. You can edit anything in your planning document at any time, ask for help refining your ideas, or even skip stages that don't feel relevant to your story.\n" +
+    "\n**Your first task:** \nSend a message to the AI assistant! It can be anything, a question, a comment, or simply say hello!")]);
     const [isLoading, setIsLoading] = useState(false);
     const { linearStage } = useStage();
     const stageHistoryRef = useRef({});

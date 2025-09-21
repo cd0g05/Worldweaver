@@ -15,10 +15,16 @@ export const STAGE_EVENTS = {
 // Your stage configuration - customize this to match your actual stages
 const STAGE_CONFIG = [
   {
+    id: 0,
+    name: 'Tutorial',
+    subStages: [
+      'Tutorial'
+    ]
+  },
+  {
     id: 1,
     name: 'Getting Started',
     subStages: [
-      'Tutorial',
       'Your Big Idea',
       'Working Title',
       'Genre & Flavor',
@@ -104,7 +110,8 @@ const STAGE_CONFIG = [
 // Calculate linear stage mapping - adjust this to match your backend's expectations
 const calculateLinearStage = (majorStage, subStage) => {
   const stagesBeforeCurrent = {
-    1: 0,   // Getting Started begins at stage 0
+    0: 0,   // Tutorial starts at stage 0
+    1: 1,   // Getting Started begins at stage 1
     2: 6,   // Worldbuilding Basics starts after 6 stages
     3: 11,  // Worldbuilding Expanded starts after 11 stages
     4: 18,  // Characters starts after 18 stages
@@ -113,13 +120,13 @@ const calculateLinearStage = (majorStage, subStage) => {
     7: 38   // Writing Style starts after 38 stages
   };
 
-  return stagesBeforeCurrent[majorStage] + subStage;
+  return stagesBeforeCurrent[majorStage] + subStage - 1;
 };
 
 // Provider component that wraps your app
 export function StageProvider({ children }) {
   // Core stage state
-  const [currentMajorStage, setCurrentMajorStage] = useState(1);
+  const [currentMajorStage, setCurrentMajorStage] = useState(0);
   const [currentSubStage, setCurrentSubStage] = useState(1);
   const [totalSubStages, setTotalSubStages] = useState(STAGE_CONFIG[0].subStages.length);
 
@@ -131,7 +138,7 @@ export function StageProvider({ children }) {
       currentStageName: majorStageInfo?.name || 'Unknown',
       currentSubStageName: majorStageInfo?.subStages[currentSubStage - 1] || 'Unknown',
       linearStage: calculateLinearStage(currentMajorStage, currentSubStage),
-      isFirstStage: currentMajorStage === 1 && currentSubStage === 1,
+      isFirstStage: currentMajorStage === 0 && currentSubStage === 1,
       isLastStage: currentMajorStage === STAGE_CONFIG.length && currentSubStage === totalSubStages
     };
   }, [currentMajorStage, currentSubStage, totalSubStages]);
@@ -229,7 +236,7 @@ export function StageProvider({ children }) {
   const goToPreviousStage = useCallback(() => {
     if (currentSubStage > 1) {
       return changeStage(currentMajorStage, currentSubStage - 1);
-    } else if (currentMajorStage > 1) {
+    } else if (currentMajorStage > 0) {
       const prevMajor = STAGE_CONFIG.find(stage => stage.id === currentMajorStage - 1);
       return changeStage(currentMajorStage - 1, prevMajor.subStages.length);
     }
@@ -249,7 +256,7 @@ export function StageProvider({ children }) {
     };
 
     // Reset to first stage
-    setCurrentMajorStage(1);
+    setCurrentMajorStage(0);
     setCurrentSubStage(1);
     setTotalSubStages(STAGE_CONFIG[0].subStages.length);
 
@@ -257,7 +264,7 @@ export function StageProvider({ children }) {
     window.dispatchEvent(new CustomEvent(STAGE_EVENTS.STAGE_RESET, {
       detail: {
         oldStage,
-        newStage: { major: 1, sub: 1, linear: 1 },
+        newStage: { major: 0, sub: 1, linear: 0 },
         message: 'Stages reset to beginning',
         timestamp: new Date().toISOString()
       }

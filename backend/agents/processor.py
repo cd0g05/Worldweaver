@@ -56,7 +56,7 @@ class Processor:
     def get_tutorial_response(self, stage:int, chat_context:str, document_context:str):
         try:
             stage_list = self.get_toml_contents("tutorial_list:2", Path("backend/config/prompts"))
-            unformatted_prompt = self.get_toml_contents("tutorial_prompt:1", Path("backend/config/prompts"))
+            unformatted_prompt = self.get_toml_contents("tutorial_prompt:2", Path("backend/config/prompts"))
             stage_title = self.get_stage_title(stage)
             formatted_prompt = unformatted_prompt.format(stages_list=stage_list, stage_title=stage_title, doc="{doc}", chat="{chat}")
             
@@ -102,8 +102,10 @@ class Processor:
 
     def get_stage_title(self, num: int) -> str:
         names = {
-            # Section 1: Getting Started
+            # Stage 0: Tutorial
             0: "Stage 0: Tutorial",
+
+            # Section 1: Getting Started
             1: "Stage 1: Your Big Idea",
             2: "Stage 2: Working Title",
             3: "Stage 3: Genre & Flavor",
@@ -129,7 +131,7 @@ class Processor:
             # Section 4: Characters
             18: "Stage 18: Your Hero",
             19: "Stage 19: What They Want",
-            20: "Stage 20: What’s in Their Way",
+            20: "Stage 20: What's in Their Way",
             21: "Stage 21: Your Villain",
             22: "Stage 22: Why They Oppose",
             23: "Stage 23: Sidekick or Ally",

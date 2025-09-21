@@ -1,8 +1,10 @@
 class AgentMap:
     def __init__(self):
         prompt_list = [
-            # Stage 1: Getting Started
+            # Stage 0: Tutorial
             "tutorial:latest",
+
+            # Stage 1: Getting Started - Big Idea
             "big_idea:latest",
             "working_title:latest",
             "genre:latest",
@@ -59,7 +61,7 @@ class AgentMap:
             "sample_para:latest"
         ]
         agent_map = {}
-        i = 1
+        i = 0  # Start from 0 instead of 1
         for prompt in prompt_list:
             agent_map[i] = prompt
             i = i + 1
