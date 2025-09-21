@@ -18,6 +18,7 @@ const STAGE_CONFIG = [
     id: 1,
     name: 'Getting Started',
     subStages: [
+      'Tutorial',
       'Your Big Idea',
       'Working Title',
       'Genre & Flavor',
@@ -104,12 +105,12 @@ const STAGE_CONFIG = [
 const calculateLinearStage = (majorStage, subStage) => {
   const stagesBeforeCurrent = {
     1: 0,   // Getting Started begins at stage 0
-    2: 5,   // Worldbuilding Basics starts after 5 stages
-    3: 10,  // Worldbuilding Expanded starts after 10 stages
-    4: 17,  // Characters starts after 17 stages
-    5: 25,  // Plot Basics starts after 25 stages
-    6: 32,  // Plot Expanded starts after 32 stages
-    7: 37   // Writing Style starts after 37 stages
+    2: 6,   // Worldbuilding Basics starts after 6 stages
+    3: 11,  // Worldbuilding Expanded starts after 11 stages
+    4: 18,  // Characters starts after 18 stages
+    5: 26,  // Plot Basics starts after 26 stages
+    6: 33,  // Plot Expanded starts after 33 stages
+    7: 38   // Writing Style starts after 38 stages
   };
 
   return stagesBeforeCurrent[majorStage] + subStage;
