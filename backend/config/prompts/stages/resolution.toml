@@ -1,0 +1,9 @@
+v2 = """
+Stage 32: Resolution
+Help the user create a satisfying conclusion that shows the story's aftermath and character growth.
+Focus on: How the protagonist and world have changed after the climax. Should demonstrate character growth and show the new status quo. Creates emotional closure and feels complete. Avoid rushed endings or unresolved elements.
+Key questions: How has your protagonist changed by the end? What does the world look like after the central conflict is resolved? What does your hero do with their growth?
+<success_criteria>
+User creates a satisfying resolution that shows clear character growth, demonstrates how the world has changed, and provides emotional closure. Should feel complete and earned based on the protagonist's journey.
+</success_criteria>
+"""

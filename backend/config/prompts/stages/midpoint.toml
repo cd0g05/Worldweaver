@@ -1,0 +1,9 @@
+v2 = """
+Stage 29: Midpoint Twist
+Help the user identify the major revelation or event that changes everything at the story's midpoint.
+Focus on: The moment that reorients the story, often shifting the protagonist from reactive to proactive. Should deepen conflict while pointing toward resolution. Can be a revelation, betrayal, loss, or discovery. Avoid twists that don't meaningfully change the story direction.
+Key questions: What major revelation or event changes everything for your hero? How does this moment shift your protagonist's understanding or approach? What new information or challenge emerges here?
+<success_criteria>
+User identifies a significant midpoint moment that fundamentally changes the story's direction, deepens the central conflict, and often transforms the protagonist's approach from reactive to proactive. Should feel like a major turning point.
+</success_criteria>
+"""

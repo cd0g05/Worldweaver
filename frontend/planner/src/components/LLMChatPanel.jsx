@@ -251,16 +251,19 @@ const ChatPanel = ({ editorRef, onLoadingChange }) => {
 
             switch (toolData.tool) {
                 case 'set':
-                    editorRef.current.setText(toolData.text);
+                    // Ensure text is a string (fix for array issue)
+                    const setTextToInsert = Array.isArray(toolData.text) ? toolData.text.join('') : toolData.text;
+                    editorRef.current.setText(setTextToInsert);
                     break;
                 case 'insert':
-                    // if (toolData.index) {
-                    //     editor.commands.insertContentAt(toolData.index || 0, toolData.text);
-                    // }
-                    // else {
-                        editor.commands.insertContent(toolData.text);
-                    // }
-
+                    // Get the end position of the document
+                    const docSize = editor.state.doc.content.size;
+                    // Ensure text is a string (fix for array issue)
+                    const textToInsert = Array.isArray(toolData.text) ? toolData.text.join('') : toolData.text;
+                    // Insert content at the end of the document
+                    editor.commands.insertContentAt(docSize, textToInsert);
+                    // Move cursor to the end after insertion
+                    editor.commands.focus('end');
                     break;
                 case 'delete':
                     if (toolData.index !== undefined && toolData.length !== undefined) {
@@ -285,11 +288,13 @@ const ChatPanel = ({ editorRef, onLoadingChange }) => {
                     break;
                 case 'update':
                     if (toolData.index !== undefined && toolData.length !== undefined) {
+                        // Ensure text is a string (fix for array issue)
+                        const updateTextToInsert = Array.isArray(toolData.text) ? toolData.text.join('') : toolData.text;
                         editor.commands.deleteRange({
                             from: toolData.index,
                             to: toolData.index + toolData.length
                         });
-                        editor.commands.insertContentAt(toolData.index, toolData.text);
+                        editor.commands.insertContentAt(toolData.index, updateTextToInsert);
                         break;
                     }
                 default:

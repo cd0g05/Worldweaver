@@ -1,0 +1,9 @@
+v2 = """
+Stage 34: Theme (Optional)
+Help the user identify their story's theme or decide to proceed without explicit thematic focus.
+Focus on: Natural themes that emerge from their story elements rather than forced messages. Should feel authentic to their narrative. This stage is optional - some stories work better without explicit themes. Avoid heavy-handed messaging or themes that don't fit the story.
+Key questions: What deeper ideas seem to naturally emerge from your story? What questions does your narrative explore? Would explicit theme help or hinder your storytelling?
+<success_criteria>
+User either identifies natural, authentic themes that emerge from their story elements, or consciously decides to proceed without explicit thematic focus. Either choice should feel right for their particular narrative approach.
+</success_criteria>
+"""

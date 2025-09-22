@@ -1,0 +1,9 @@
+v2 = """
+Stage 27: Inciting Incident
+Help the user identify the event that transforms setup into story and launches their protagonist's journey.
+Focus on: The specific moment or event that disrupts the status quo and makes the hero's journey necessary. Should create urgency and commitment to the central quest. Avoid events that are too small or disconnected from the main conflict.
+Key questions: What event forces your hero to take action? What disrupts their normal life and creates urgency? How does this event connect to your story's central conflict?
+<success_criteria>
+User identifies a clear inciting incident that disrupts the status quo, creates urgency for action, and launches the protagonist toward their central goal. Should feel significant and directly connected to the main story conflict.
+</success_criteria>
+"""

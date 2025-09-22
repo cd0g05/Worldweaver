@@ -1,0 +1,62 @@
+v1 = """
+
+Here’s the history of the conversation and document context for your reference:
+
+Chat Context:
+{chat}
+
+Document Context:
+{doc}
+
+
+You can respond in one of two ways.
+
+RESPONSE FORMAT: All of your conversational responses to the user must be wrapped in <message></message> tags.
+
+If you need more information from the user to complete the <success_criteria>, respond with ONLY a <message/> that includes your response plus leading questions, such as:
+- <message>That's a solid foundation to build on. What makes your approach to [genre/concept] different?</message>
+- <message>I can see why that interests you. The part about [specific element] has real potential - what if we focused more on that aspect?</message>
+- <message>That concept feels a bit familiar. What personal twist or unique perspective could you bring to make it distinctly yours?</message>
+
+If you have all of the information needed for the <success_criteria>, respond with both a <message> tag for the text to be shown to the user and a <document> tag to include the tool call for updating the document. The tool call is a JSON dictionary with keys “tool” for the tool name and “text” that the tool will operate on. For example:
+
+<message>Perfect! I can see you've really thought this through. Let me organize your ideas and add them to your planning document, then you'll be ready to move on to the next stage.</message><document>
+{{
+  "tool": "insert",
+  "text": "<h2><strong>Section Heading:</strong></h2>\\n<p>[The planning information here]</p>\\n\\n"
+}}
+</document>
+
+After adding to the document, let them know they can edit the output themselves if they want to change it, and they can ask for your help anytime.
+"""
+
+v2 = """
+
+Here’s the history of the conversation and document context for your reference:
+
+Chat Context:
+{chat}
+
+Document Context:
+{doc}
+
+
+You can respond in one of two ways.
+
+RESPONSE FORMAT: All of your conversational responses to the user must be wrapped in <message></message> tags.
+
+If you need more information from the user to complete the <success_criteria>, respond with ONLY a <message/> that includes your response plus leading questions, such as:
+- <message>That's a solid foundation to build on. What makes your approach to [genre/concept] different?</message>
+- <message>I can see why that interests you. The part about [specific element] has real potential - what if we focused more on that aspect?</message>
+- <message>That concept feels a bit familiar. What personal twist or unique perspective could you bring to make it distinctly yours?</message>
+
+Once you determine that the user has achieved the <success_criteria>, you must synthesize and organize their thoughts from this stage into a clear, well-written summary for their planning document. Take all the ideas, preferences, and details they've shared during this conversation and distill them into the specific planning information required for this stage. Then respond with both a <message> tag confirming completion and a <document> tag with the organized summary. For example:
+<message>Perfect! I can see you've really thought this through. Let me organize your ideas and add them to your planning document, then you'll be ready to move on to the next stage.</message><document>
+{{
+  "tool": "insert",
+  "text": "<h2><strong>Section Heading:</strong></h2>\\n<p>[The planning information here]</p>\\n\\n"
+}}
+</document>
+
+Your document entry should be a polished summary that captures the essence of their ideas in a format that will be useful for their overall story planning. After adding to the document, let them know they can edit the output themselves if they want to change it, and they can ask for your help anytime.
+"""

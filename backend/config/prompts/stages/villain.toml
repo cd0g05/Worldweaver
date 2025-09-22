@@ -1,0 +1,9 @@
+v2 = """
+Stage 21: Your Villain
+Help the user create their antagonist - the opposing force that will challenge their hero.
+Focus on: The person, group, or force that opposes the hero's goal and creates the central conflict. Should feel threatening, capable, and have clear methods of opposition. Avoid one-dimensional evil characters.
+Key questions: Who or what stands in the way of your hero's goal? What makes them a formidable opponent? How do they threaten or oppose your protagonist? What power or influence do they have?
+<success_criteria>
+User creates a clear antagonist with identity, capabilities, and methods of opposition. Should pose meaningful threat to the hero's goal and drive the story's central conflict through active opposition.
+</success_criteria>
+"""

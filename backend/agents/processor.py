@@ -2,6 +2,7 @@ from pyexpat import model
 
 from backend.agents.agent import Agent
 from backend.agents.agent_map import AgentMap
+from backend.agents.prompt_combiner import PromptCombiner
 from backend.utils.conversation_logger import conversation_logger
 from pathlib import Path
 import toml
@@ -11,6 +12,7 @@ class Processor:
     def __init__(self, model: str):
         self.model = model
         self.agent_map = AgentMap()
+        self.prompt_combiner = PromptCombiner()
 
     def get_llm_response(self, stage:int, user_prompt:str, chat_context:str, document_context:str):
         try:
@@ -20,24 +22,28 @@ class Processor:
             conversation_logger.log_error(
                 error_type="PROCESSOR_STAGE_ERROR",
                 error_message=error_msg,
-                context={"stage": stage, "available_stages": list(self.agent_map.agent_map.keys())}
+                context={"stage": stage, "available_stages": list(self.agent_map.stage_map.keys())}
             )
             return error_msg
         
         model: str = "gemini"
         
         # Log processor activity
-        conversation_logger.log_message(f"Processor invoking {model} with prompt '{prompt_name}' for stage {stage}")
-        
-        agent: Agent = Agent.get_agent(model, prompt_name, 1)
+        conversation_logger.log_message(f"Processor invoking {model} with combined prompt for '{prompt_name}' stage {stage}")
         
         try:
+            # Get combined prompt using PromptCombiner
+            combined_prompt = self.prompt_combiner.get_combined_prompt(prompt_name.split(":")[0])
+            
+            # Create agent with combined prompt (flag=0 to use prompt as-is, not load from file)
+            agent: Agent = Agent.get_agent(model, combined_prompt, 0)
+            
             response = agent.invoke(user_prompt, chat_context, document_context)
             
             # Log successful processor response
             conversation_logger.log_message(f"Processor received response from {model} ({len(response)} characters)")
             
-            return response, {"prompt_name": prompt_name, "model": model, "stage": stage}
+            return response, {"prompt_name": prompt_name, "model": model, "stage": stage, "combined": True}
         
         except Exception as e:
             error_msg = f"Agent invocation failed: {str(e)}"
@@ -55,8 +61,8 @@ class Processor:
 
     def get_tutorial_response(self, stage:int, chat_context:str, document_context:str):
         try:
-            stage_list = self.get_toml_contents("tutorial_list:2", Path("backend/config/prompts"))
-            unformatted_prompt = self.get_toml_contents("tutorial_prompt:2", Path("backend/config/prompts"))
+            stage_list = self.get_toml_contents("tutorial_list:2", Path("backend/config/prompts/general"))
+            unformatted_prompt = self.get_toml_contents("tutorial_prompt:2", Path("backend/config/prompts/general"))
             stage_title = self.get_stage_title(stage)
             formatted_prompt = unformatted_prompt.format(stages_list=stage_list, stage_title=stage_title, doc="{doc}", chat="{chat}")
             

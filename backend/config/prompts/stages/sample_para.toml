@@ -1,0 +1,9 @@
+v2 = """
+Stage 42: Sample Paragraph
+Help the user write a sample paragraph that demonstrates their intended voice and style.
+Focus on: Creating a short passage that captures their chosen tone, perspective, and writing style while featuring their protagonist or world. Should build confidence and serve as a touchstone for their voice. Avoid perfectionism or extensive revision.
+Key questions: What scene or moment would showcase your writing style? How can we demonstrate your chosen tone and perspective? What would help you feel confident about your unique voice?
+<success_criteria>
+User writes a sample paragraph that authentically demonstrates their intended voice, tone, and style. Should feel representative of their story and build confidence in their ability to write in their chosen style. Marks completion of comprehensive story planning.
+</success_criteria>
+"""

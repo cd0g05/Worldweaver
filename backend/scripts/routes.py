@@ -95,20 +95,39 @@ def ensure_conversation_session():
 # def shutdown_session(exception=None):
 #     SessionLocal.remove()
 def parse_string(input_str: str) -> str:
-    # Extract contents between tags using regex
-    message_match = re.search(r"<message>(.*?)</message>", input_str, re.DOTALL)
-    document_match = re.search(r"<document>(.*?)</document>", input_str, re.DOTALL)
-    message_content = message_match.group(1).strip() if message_match else None
+    # Extract all instances of message and document tags using regex
+    message_matches = re.findall(r"<message>(.*?)</message>", input_str, re.DOTALL)
+    document_matches = re.findall(r"<document>(.*?)</document>", input_str, re.DOTALL)
+    
+    # Combine all message contents with newlines
+    message_content = None
+    if message_matches:
+        # Strip whitespace from each match and join with double newlines
+        cleaned_messages = [msg.strip() for msg in message_matches if msg.strip()]
+        if cleaned_messages:
+            message_content = "\n\n".join(cleaned_messages)
+    
+    # Handle document content - use the last valid JSON document
     document_content = None
-
-    if document_match:
-        raw_doc = document_match.group(1).strip()
-        try:
-            # Try to parse as JSON
-            document_content = json.loads(raw_doc)
-        except json.JSONDecodeError:
-            # Fallback: keep as plain string if invalid JSON
-            document_content = raw_doc
+    if document_matches:
+        # Try each document match from last to first to get the most recent valid one
+        for raw_doc in reversed(document_matches):
+            raw_doc = raw_doc.strip()
+            if raw_doc:
+                try:
+                    # Try to parse as JSON
+                    document_content = json.loads(raw_doc)
+                    break  # Use the first valid JSON we find (working backwards)
+                except json.JSONDecodeError:
+                    continue  # Try the next document match
+        
+        # If no valid JSON found, use the last non-empty document as plain string
+        if document_content is None:
+            for raw_doc in reversed(document_matches):
+                raw_doc = raw_doc.strip()
+                if raw_doc:
+                    document_content = raw_doc
+                    break
     if message_content and document_content:
         result = {
             "type": "both",
@@ -415,7 +434,7 @@ def llm():
                             metadata=metadata
                         )
                         logger.debug(f"Received: {json_output_str}")
-                        return json_output_str
+                        return jsonify(json_output)
                     except json.JSONDecodeError as parse_error:
                         # Fallback to basic message format
                         fallback_output = {
