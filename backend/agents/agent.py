@@ -6,7 +6,10 @@ from vertexai import init
 from abc import ABCMeta, abstractmethod
 import dotenv
 from pathlib import Path
-import toml
+try:
+    import tomllib  # Python 3.11+
+except ImportError:
+    import tomli as tomllib  # Fallback for older Python versions
 from typing import Optional
 from backend.utils.logging_config import get_module_logger
 # from google.cloud import aiplatform
@@ -60,8 +63,8 @@ class Agent(metaclass=ABCMeta):
             raise NotADirectoryError(f"Prompt directory not found: {prompt_dir_path}")
 
         fname, vers = prompt_ref.split(":")
-        with open(str(prompt_dir_path / f"{fname}.toml"), 'r') as file:
-            toml_content = toml.load(file)
+        with open(str(prompt_dir_path / f"{fname}.toml"), 'rb') as file:
+            toml_content = tomllib.load(file)
 
         if vers == "latest":
             versions = [key for key in toml_content.keys() if key.startswith('v')]
