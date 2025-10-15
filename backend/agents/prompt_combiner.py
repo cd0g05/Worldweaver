@@ -1,5 +1,8 @@
 from pathlib import Path
-import toml
+try:
+    import tomllib  # Python 3.11+
+except ImportError:
+    import tomli as tomllib  # Fallback for older Python versions
 from typing import Optional
 from backend.utils.logging_config import get_module_logger
 
@@ -24,8 +27,8 @@ class PromptCombiner:
         if not toml_file_path.exists():
             raise FileNotFoundError(f"Prompt file not found: {toml_file_path}")
         
-        with open(toml_file_path, 'r') as file:
-            toml_content = toml.load(file)
+        with open(toml_file_path, 'rb') as file:
+            toml_content = tomllib.load(file)
         
         if version == "latest":
             versions = [key for key in toml_content.keys() if key.startswith('v')]

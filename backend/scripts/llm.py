@@ -6,7 +6,10 @@ from dotenv import load_dotenv
 from pathlib import Path
 from backend.agents.agent import Agent
 from backend.utils.logging_config import get_module_logger
-import toml
+try:
+    import tomllib  # Python 3.11+
+except ImportError:
+    import tomli as tomllib  # Fallback for older Python versions
 load_dotenv()
 import os
 api_key = os.getenv("OPENAI_API_KEY")
